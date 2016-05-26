@@ -39,7 +39,10 @@ RenderSystem::~RenderSystem()
 }
 
 bool
-RenderSystem::init(const char* title, const int& width, const int& height)
+RenderSystem::init(const char* title,
+                   const int& width,
+                   const int& height,
+                   bool sw)
 {
 	// Set title
 	this->title = title;
@@ -79,10 +82,16 @@ RenderSystem::init(const char* title, const int& width, const int& height)
 	}
 	
 	// Create renderer for window
-	renderer = SDL_CreateRenderer(window,
-	                              -1,
-	                              SDL_RENDERER_ACCELERATED);
-	
+	if (sw) {
+		renderer = SDL_CreateRenderer(window,
+	                                  -1,
+	                                  SDL_RENDERER_SOFTWARE);
+	}
+	else {
+		renderer = SDL_CreateRenderer(window,
+	                                  -1,
+	                                  SDL_RENDERER_ACCELERATED);
+	}
 	// If unsuccessful: print error code and return
 	if (renderer == NULL) {
 		printf("Renderer could not be created: %s\n", SDL_GetError());

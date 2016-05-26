@@ -15,7 +15,7 @@ public:
 	RenderSystem();
 	~RenderSystem();
 
-	bool init(const char* title, const int& width, const int& height);
+	bool init(const char* title, const int& width, const int& height, bool sw);
 	void render();
 
 private:
