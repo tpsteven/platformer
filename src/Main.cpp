@@ -8,13 +8,16 @@ using namespace std;
 #include "RenderSystem.hpp"
 #include "Types.hpp"
 
-const char     SCREEN_TITLE[] = "platformer";
-const uint32_t SCREEN_WIDTH   = 1920;
-const uint32_t SCREEN_HEIGHT  = 1080;
-const uint32_t PS_SCALE       = 2;  // screen-pixel to sprite-pixel scale
-
 int main(int argc, char* argv[])
 {
+	const char     SCREEN_TITLE[] = "platformer";
+	const uint32_t SCREEN_WIDTH   = 1920;
+	const uint32_t SCREEN_HEIGHT  = 1080;
+	const uint32_t PS_SCALE       = 2;  // screen-pixel to sprite-pixel scale
+
+	// TODO: get SCREEN_WIDTH, SCREEN_HEIGHT from args or resolution
+	// TODO: read settings from cfg/ (indexed at cfg/cfg.index)
+
 	Camera cam(SCREEN_WIDTH, SCREEN_HEIGHT);
 	RenderSystem renderer(SCREEN_WIDTH, SCREEN_HEIGHT, PS_SCALE);
 	SDL_Event e;
@@ -26,11 +29,13 @@ int main(int argc, char* argv[])
 		string arg = argv[i];
 
 		if (arg.find('=') == string::npos) {
+			// argument is a flag
 			if (arg.compare("sw") == 0) {
 				sw = true;
 			}
 		}
 		else {
+			// argument is a key-value pair (separated by '=')
 			string k = arg.substr(0, arg.find('='));
 			string v = arg.substr(arg.find('=') + 1);
 			
@@ -42,7 +47,9 @@ int main(int argc, char* argv[])
 	if (!renderer.init(SCREEN_TITLE, sw)) {
 		return -1;
 	}
-	
+
+	// TODO: read list of levels from lvl/lvl.index
+
 	// Load level
 
 	// Game loop
