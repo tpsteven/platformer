@@ -14,8 +14,15 @@ Camera::~Camera()
 }
 
 void
-Camera::setPosition(uint32_t x, uint32_t y)
+Camera::setPosition(int x, int y)
 {
 	rect.x = x;
 	rect.y = y;
+}
+
+void 
+Camera::shiftPosition(int x, int y)
+{
+	rect.x = (rect.x + x < 0) ? 0 : rect.x + x;
+	rect.y = (rect.y + y < 0) ? 0 : rect.y + y;
 }

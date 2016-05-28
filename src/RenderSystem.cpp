@@ -1,6 +1,5 @@
 #include "RenderSystem.hpp"
 
-#include <iostream>
 #include <string>
 #include <sstream>
 using namespace std;
@@ -22,11 +21,6 @@ RenderSystem::RenderSystem(uint32_t width, uint32_t height, uint32_t bwScale)
 
 RenderSystem::~RenderSystem()
 {
-	// Destroy frame timer
-	if (frameTimer != nullptr) {
-		delete frameTimer;
-	}
-
 	// Destroy window
 	if (window != nullptr) {
 		SDL_DestroyWindow(window);
@@ -96,12 +90,6 @@ RenderSystem::init(const char* title,
 		return false;
 	}
 
-	// Create frame timer
-	frameTimer = new FrameTimer(100);
-
-	// Start the frame timer
-	frameTimer->start();
-	
 	return true;
 }
 
@@ -122,6 +110,10 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 		rect.y = height - rect.y - bwScale;
 	};
 
+	auto shiftRect = [&] (SDL_Rect& rect) {
+		rect.x -= cam.getRect().x;
+	};
+
 	// Clear screen
 	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(renderer);
@@ -135,18 +127,12 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 		if (SDL_IntersectRect(&worldRect, &cam.getRect(), &intersectRect) ==
 		    SDL_TRUE) {
 			worldToSDL(intersectRect);
+			shiftRect(intersectRect);
 			SDL_RenderDrawRect(renderer, &intersectRect);
 		}
 	}
 
 	SDL_RenderPresent(renderer);
-	
-	// Update frame time
-	frameTimer->tick();
-
-	if (frameTimer->getFrameCount() % 100 == 0) {
-		cout << frameTimer->getFps() << endl;
-	}
 }
 
 SDL_Texture* 

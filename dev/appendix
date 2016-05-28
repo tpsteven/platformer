@@ -1,3 +1,8 @@
+Coordinate Systems:
+	- Block coodinates (bottom left is (0, 0))
+	- World coordinates: same as block coordinates, scaled by BW_SCALE
+	- SDL Coordinates (top left is (0, 0))
+
 Camera:
 	- Objects currently within the camera's rect are rendered to the screen. 
 	- If Scene's playable area is smaller than the Camera's rect, the Scene is
@@ -26,3 +31,7 @@ Scene:
 Types:
 	- Contains useful typedefs (e.g. unsigned int -> uint32_t)
 
+
+loading levels:      block coordinates
+checking collisions: world coordinates
+rendering sprites:   height - worldCoordinates.y - BW_SCALE

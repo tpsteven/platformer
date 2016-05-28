@@ -8,7 +8,6 @@ using namespace std;
 #include <SDL.h>
 
 #include "Camera.hpp"
-#include "FrameTimer.hpp"
 #include "Scene.hpp"
 #include "Types.hpp"
 
@@ -27,7 +26,6 @@ private:
 	const uint32_t height;
 	const uint32_t bwScale; // size of block, in world-pixels
 
-	FrameTimer*   frameTimer;
 	SDL_Renderer* renderer = nullptr;
 	SDL_Window*   window = nullptr;
 	string        title;

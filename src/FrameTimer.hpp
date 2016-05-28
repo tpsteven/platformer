@@ -17,7 +17,11 @@ public:
 
 	float getFps() const {
 		return fps;
-	};
+	}
+
+	float getLastFrameTime() const {
+		return (frameCount == 0) ? 0 : frameDeltas.back();
+	}
 
 	uint32_t getFrameCount() const {
 		return frameCount;

@@ -10,7 +10,8 @@ public:
 	Camera(uint32_t width, uint32_t height);
 	~Camera();
 
-	void setPosition(uint32_t x, uint32_t y);
+	void setPosition(int x, int y);
+	void shiftPosition(int x, int y);
 
 	const SDL_Rect& getRect() const {
 		return rect;
