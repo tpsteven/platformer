@@ -1,0 +1,28 @@
+Camera:
+	- Objects currently within the camera's rect are rendered to the screen. 
+	- If Scene's playable area is smaller than the Camera's rect, the Scene is
+	  centered in the window.
+	- The Camera moves with the player until the player is within rect.w / 2 of a
+	  Scene boundary, at which point the Camera stops moving.
+	- By default, the Camera's width and height are equal to those of the window.
+
+FrameTimer:
+	- Calculates the average FPS using the last 100 frames.
+	- RenderSystem calls FrameTimer.tick() to record next frame time.
+
+Main:
+	- Loads the user config, scene, and starts game loop. Handles input and 
+	  calls Physics.tick() and RenderSystem.render().
+
+PhysicsSystem:
+	- Handles collisions and player kinematics with a Scene and set of input.
+
+RenderSystem:
+	- Renders the intersection of a Camera and a Scene to the window.
+
+Scene:
+	- Stores all the player, enemy, and environment data.
+
+Types:
+	- Contains useful typedefs (e.g. unsigned int -> uint32_t)
+
