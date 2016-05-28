@@ -2,7 +2,9 @@
 
 #include <SDL.h>
 
-Platform(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
+#include "Types.hpp"
+
+Platform::Platform(uint32_t x, uint32_t y, uint32_t w, uint32_t h)
 {
 	rect.x = x;
 	rect.y = y;

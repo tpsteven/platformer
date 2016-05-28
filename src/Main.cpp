@@ -6,6 +6,7 @@ using namespace std;
 
 #include "Camera.hpp"
 #include "RenderSystem.hpp"
+#include "Scene.hpp"
 #include "Types.hpp"
 
 int main(int argc, char* argv[])
@@ -13,7 +14,7 @@ int main(int argc, char* argv[])
 	const char     SCREEN_TITLE[] = "platformer";
 	const uint32_t SCREEN_WIDTH   = 1920;
 	const uint32_t SCREEN_HEIGHT  = 1080;
-	const uint32_t PS_SCALE       = 2;  // screen-pixel to sprite-pixel scale
+	const uint32_t PS_SCALE       = 40;  // screen-pixel to sprite-pixel scale
 
 	// TODO: get SCREEN_WIDTH, SCREEN_HEIGHT from args or resolution
 	// TODO: read settings from cfg/ (indexed at cfg/cfg.index)
@@ -50,7 +51,12 @@ int main(int argc, char* argv[])
 
 	// TODO: read list of levels from lvl/lvl.index
 
-	// Load level
+	// Load scene
+	Scene s;
+
+	for (int i = 1; i < 16; ++i) {
+		s.addPlatform(i * 4, (i - 1) * 2, 3, 1);
+	}
 
 	// Game loop
 	while (run) {
@@ -76,7 +82,7 @@ int main(int argc, char* argv[])
         }
 
         // Render
-        renderer.render(cam);
+        renderer.render(s, cam);
 	}
 
     return 0;

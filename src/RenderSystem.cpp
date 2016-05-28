@@ -8,10 +8,13 @@ using namespace std;
 #include <SDL.h>
 #include <SDL_image.h>
 
+#include "Camera.hpp"
+#include "Platform.hpp"
+#include "Scene.hpp"
 #include "Types.hpp"
 
-RenderSystem::RenderSystem(uint32_t width, uint32_t height, uint32_t psScale)
-	: width(width), height(height), psScale(psScale)
+RenderSystem::RenderSystem(uint32_t width, uint32_t height, uint32_t bwScale)
+	: width(width), height(height), bwScale(bwScale)
 {
 	// intentionally empty
 	// initialization occurs in RenderSystem::init()
@@ -103,12 +106,39 @@ RenderSystem::init(const char* title,
 }
 
 void
-RenderSystem::render(const Camera& cam)
+RenderSystem::render(const Scene& scene, const Camera& cam)
 {
-	// Clear screen, render textures, and update window
-	SDL_SetRenderDrawColor(renderer, 0xC0, 0xC0, 0xC0, 0xFF);
+	SDL_Rect intersectRect;
+	SDL_Rect worldRect;
+
+	auto blockToWorld = [&] (SDL_Rect& rect) {
+		rect.x *= bwScale;
+		rect.y *= bwScale;
+		rect.w *= bwScale;
+		rect.h *= bwScale;
+	};
+
+	auto worldToSDL = [&] (SDL_Rect& rect) {
+		rect.y = height - rect.y - bwScale;
+	};
+
+	// Clear screen
+	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(renderer);
-	
+
+	// Draw all platforms
+	SDL_SetRenderDrawColor(renderer, 0x7d, 0xc1, 0xf0, 0xFF);
+	for (Platform p : scene.getPlatforms()) {
+		worldRect = p.getRect();
+		blockToWorld(worldRect);
+
+		if (SDL_IntersectRect(&worldRect, &cam.getRect(), &intersectRect) ==
+		    SDL_TRUE) {
+			worldToSDL(intersectRect);
+			SDL_RenderDrawRect(renderer, &intersectRect);
+		}
+	}
+
 	SDL_RenderPresent(renderer);
 	
 	// Update frame time

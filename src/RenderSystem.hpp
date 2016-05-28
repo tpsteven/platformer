@@ -9,22 +9,23 @@ using namespace std;
 
 #include "Camera.hpp"
 #include "FrameTimer.hpp"
+#include "Scene.hpp"
 #include "Types.hpp"
 
 class RenderSystem {
 public:
-	RenderSystem(uint32_t width, uint32_t height, uint32_t psScale);
+	RenderSystem(uint32_t width, uint32_t height, uint32_t bwScale);
 	~RenderSystem();
 
 	bool init(const char* title, bool sw);
-	void render(const Camera& cam);
+	void render(const Scene& scene, const Camera& cam);
 
 private:
 	SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer);
 
 	const uint32_t width;
 	const uint32_t height;
-	const uint32_t psScale; // screen-pixel to sprite-pixel scale
+	const uint32_t bwScale; // size of block, in world-pixels
 
 	FrameTimer*   frameTimer;
 	SDL_Renderer* renderer = nullptr;
