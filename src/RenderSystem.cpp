@@ -107,11 +107,12 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 	};
 
 	auto worldToSDL = [&] (SDL_Rect& rect) {
-		rect.y = height - rect.y - bwScale;
+		rect.y = height - (rect.y + rect.h);// - bwScale;
 	};
 
 	auto shiftRect = [&] (SDL_Rect& rect) {
 		rect.x -= cam.getRect().x;
+		rect.y -= cam.getRect().y;
 	};
 
 	// Clear screen
@@ -126,9 +127,9 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 
 		if (SDL_IntersectRect(&worldRect, &cam.getRect(), &intersectRect) ==
 		    SDL_TRUE) {
-			worldToSDL(intersectRect);
 			shiftRect(intersectRect);
-			SDL_RenderDrawRect(renderer, &intersectRect);
+			worldToSDL(intersectRect);
+			SDL_RenderFillRect(renderer, &intersectRect);
 		}
 	}
 
