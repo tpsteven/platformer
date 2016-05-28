@@ -7,26 +7,29 @@ using namespace std;
 
 #include <SDL.h>
 
+#include "Camera.hpp"
 #include "FrameTimer.hpp"
 #include "Types.hpp"
 
 class RenderSystem {
 public:
-	RenderSystem();
+	RenderSystem(uint32_t width, uint32_t height, uint32_t psScale);
 	~RenderSystem();
 
-	bool init(const char* title, const int& width, const int& height, bool sw);
-	void render();
+	bool init(const char* title, bool sw);
+	void render(const Camera& cam);
 
 private:
 	SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer);
+
+	const uint32_t width;
+	const uint32_t height;
+	const uint32_t psScale; // screen-pixel to sprite-pixel scale
 
 	FrameTimer*   frameTimer;
 	SDL_Renderer* renderer = nullptr;
 	SDL_Window*   window = nullptr;
 	string        title;
-	uint32_t      width;
-	uint32_t      height;
 };
 
 #endif

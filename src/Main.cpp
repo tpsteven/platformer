@@ -4,15 +4,19 @@ using namespace std;
 
 #include <SDL.h>
 
+#include "Camera.hpp"
 #include "RenderSystem.hpp"
+#include "Types.hpp"
 
-const char SCREEN_TITLE[] = "platformer";
-const int  SCREEN_WIDTH   = 1920;
-const int  SCREEN_HEIGHT  = 1080;
+const char     SCREEN_TITLE[] = "platformer";
+const uint32_t SCREEN_WIDTH   = 1920;
+const uint32_t SCREEN_HEIGHT  = 1080;
+const uint32_t PS_SCALE       = 2;  // screen-pixel to sprite-pixel scale
 
 int main(int argc, char* argv[])
 {
-	RenderSystem renderer;
+	Camera cam(SCREEN_WIDTH, SCREEN_HEIGHT);
+	RenderSystem renderer(SCREEN_WIDTH, SCREEN_HEIGHT, PS_SCALE);
 	SDL_Event e;
 
 	bool run = true;    // Run until false
@@ -35,10 +39,12 @@ int main(int argc, char* argv[])
 	}
 
 	// Initialize the renderer (including SDL and required libraries)
-	if (!renderer.init(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT, sw)) {
+	if (!renderer.init(SCREEN_TITLE, sw)) {
 		return -1;
 	}
 	
+	// Load level
+
 	// Game loop
 	while (run) {
 		// Handle input events
@@ -63,7 +69,7 @@ int main(int argc, char* argv[])
         }
 
         // Render
-        renderer.render();
+        renderer.render(cam);
 	}
 
     return 0;

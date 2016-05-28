@@ -10,7 +10,8 @@ using namespace std;
 
 #include "Types.hpp"
 
-RenderSystem::RenderSystem()
+RenderSystem::RenderSystem(uint32_t width, uint32_t height, uint32_t psScale)
+	: width(width), height(height), psScale(psScale)
 {
 	// intentionally empty
 	// initialization occurs in RenderSystem::init()
@@ -40,16 +41,10 @@ RenderSystem::~RenderSystem()
 
 bool
 RenderSystem::init(const char* title,
-                   const int& width,
-                   const int& height,
                    bool sw)
 {
 	// Set title
 	this->title = title;
-	
-	// Set width and height
-	this->width = width;
-	this->height = height;
 	
 	// Attempt to initialize SDL
 	// If unsuccessful, print error code and return
@@ -108,7 +103,7 @@ RenderSystem::init(const char* title,
 }
 
 void
-RenderSystem::render()
+RenderSystem::render(const Camera& cam)
 {
 	// Clear screen, render textures, and update window
 	SDL_SetRenderDrawColor(renderer, 0xC0, 0xC0, 0xC0, 0xFF);
