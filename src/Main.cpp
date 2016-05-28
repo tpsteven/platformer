@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
 	SDL_Event e;
 	Scene s;
 
+	bool fps = false;   // Display fps counter
 	bool run = true;    // Run until false
 	bool sw = false;    // Default to hardware-accelerated renderer
 
@@ -44,6 +45,9 @@ int main(int argc, char* argv[])
 			string v = arg.substr(arg.find('=') + 1);
 			
 			// Check key-value settings here
+			if (k.compare("fps") == 0) {
+				fps = v.compare("true") == 0 ? true : false;
+			}
 		}
 	}
 
@@ -65,11 +69,10 @@ int main(int argc, char* argv[])
 	// Game loop
 	bool left = false;
 	bool right = false;
+	bool up = false;
+	bool down = false;
 	
 	while (run) {
-		int camDifX = 0;
-		int camDifY = 0;
-
 		// Handle input events
 		while (SDL_PollEvent(&e) != 0) {
 			switch (e.type) {
@@ -89,6 +92,11 @@ int main(int argc, char* argv[])
 				case SDLK_RIGHT:
 					right = true;
 					break;
+				case SDLK_UP:
+					up = true;
+					break;
+				case SDLK_DOWN:
+					down = true;
 				default:
 					break;
 				}
@@ -102,6 +110,12 @@ int main(int argc, char* argv[])
 					case SDLK_RIGHT:
 						right = false;
 						break;
+					case SDLK_UP:
+						up = false;
+						break;
+					case SDLK_DOWN:
+						down = false;
+						break;
 					default:
 						break;
 				}
@@ -112,19 +126,31 @@ int main(int argc, char* argv[])
         }
 
 		// Physics Stuff
+		int camDifX = frameTimer.getLastFrameTime() / 2;
+		int camDifY = frameTimer.getLastFrameTime() / 2;
+		
 		if (left && !right) {
-			cam.shiftPosition(-1 * frameTimer.getLastFrameTime() / 2, camDifY);
+			camDifX *= -1;
 		}
-		else if (!left && right) {
-			cam.shiftPosition(frameTimer.getLastFrameTime() / 2, camDifY);
+		else if (!left && !right) {
+			camDifX = 0;
 		}
+
+		if (down && !up) {
+			camDifY *= -1;
+		}
+		else if (!down && !up) {
+			camDifY = 0;
+		}
+
+		cam.shiftPosition(camDifX, camDifY);
 
         // Render
         renderer.render(s, cam);
 	
 		// Update frame time and display
 		frameTimer.tick();
-		if (frameTimer.getFrameCount() % 100 == 0) {
+		if (fps && frameTimer.getFrameCount() % 100 == 0) {
 			cout << frameTimer.getFps() << endl;
 		}
 	}
