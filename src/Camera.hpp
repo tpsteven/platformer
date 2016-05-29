@@ -10,8 +10,10 @@ public:
 	Camera(uint32_t width, uint32_t height);
 	~Camera();
 
-	void setPosition(int x, int y);
-	void shiftPosition(int x, int y);
+	// negative numbers allowed for centering Camera around small bounds
+	void setPosition(int x, int y, const SDL_Rect& bounds);
+
+	void shiftPosition(int x, int y, const SDL_Rect& bounds);
 
 	const SDL_Rect& getRect() const {
 		return rect;

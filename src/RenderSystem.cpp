@@ -106,18 +106,27 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 		rect.h *= bwScale;
 	};
 
-	auto worldToSDL = [&] (SDL_Rect& rect) {
-		rect.y = height - (rect.y + rect.h);// - bwScale;
-	};
-
-	auto shiftRect = [&] (SDL_Rect& rect) {
+	auto camShift = [&] (SDL_Rect& rect) {
 		rect.x -= cam.getRect().x;
 		rect.y -= cam.getRect().y;
 	};
 
+	auto worldToSDL = [&] (SDL_Rect& rect) {
+		rect.y = height - (rect.y + rect.h);
+	};
+
 	// Clear screen
-	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	SDL_RenderClear(renderer);
+
+	// Draw level background
+	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+	worldRect = scene.getBounds();
+	blockToWorld(worldRect);
+	SDL_IntersectRect(&worldRect, &cam.getRect(), &intersectRect);
+	camShift(intersectRect);
+	worldToSDL(intersectRect);
+	SDL_RenderFillRect(renderer, &intersectRect);
 
 	// Draw all platforms
 	SDL_SetRenderDrawColor(renderer, 0x7d, 0xc1, 0xf0, 0xFF);
@@ -127,7 +136,7 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 
 		if (SDL_IntersectRect(&worldRect, &cam.getRect(), &intersectRect) ==
 		    SDL_TRUE) {
-			shiftRect(intersectRect);
+			camShift(intersectRect);
 			worldToSDL(intersectRect);
 			SDL_RenderFillRect(renderer, &intersectRect);
 		}
