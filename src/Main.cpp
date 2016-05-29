@@ -59,16 +59,16 @@ int main(int argc, char* argv[])
 	// TODO: read list of levels from lvl/lvl.index
 
 	// TODO: load scene
-	/*for (int i = 1; i < 16; ++i) {
+	/* for (int i = 1; i < 16; ++i) {
 		s.addPlatform(i * 4, (i - 1) * 2, 3, 1);
 	}*/
 	//s.setBounds(0, 0, 64, 36);
 	
 	s.addPlatform(0, 0, 1, 1);
 	s.addPlatform(0, 17, 1, 1);
-	s.addPlatform(27, 0, 1, 1);
-	s.addPlatform(27, 17, 1, 1);
-	s.setBounds(0, 0, 28, 18);
+	s.addPlatform(63, 0, 1, 1);
+	s.addPlatform(63, 17, 1, 1);
+	s.setBounds(0, 0, 64, 18);
 
 	// Start the frame timer
 	frameTimer.start();
@@ -78,9 +78,6 @@ int main(int argc, char* argv[])
 	bool right = false;
 	bool up = false;
 	bool down = false;
-
-	cam.setPosition(0, 0, s.getWorldBounds());
-	cout << cam.getRect().x << ", " << cam.getRect().y << endl;
 
 	while (run) {
 		// Handle input events
@@ -154,7 +151,6 @@ int main(int argc, char* argv[])
 		}
 
 		cam.shiftPosition(camDifX, camDifY, s.getWorldBounds());
-	cout << cam.getRect().x << ", " << cam.getRect().y << endl;
 
         // Render
         renderer.render(s, cam);
@@ -164,8 +160,6 @@ int main(int argc, char* argv[])
 		if (fps && frameTimer.getFrameCount() % 100 == 0) {
 			cout << frameTimer.getFps() << endl;
 		}
-
-		run = false;
 	}
 
     return 0;

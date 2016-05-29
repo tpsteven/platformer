@@ -39,7 +39,7 @@ Camera::setPosition(int x, int y, const SDL_Rect& bounds)
 
 	// set y-position
 	if (rect.h >= bounds.h) {
-		rect.y = bounds.y - (rect.h - bounds.y) / 2;
+		rect.y = bounds.y - (rect.h - bounds.h) / 2;
 	}
 	else {
 		if (y <= bounds.y) {
