@@ -63,16 +63,18 @@ int main(int argc, char* argv[])
 	// TODO: read list of levels from lvl/lvl.index
 
 	// TODO: load scene
-	/* for (int i = 1; i < 16; ++i) {
-		s.addPlatform(i * 4, (i - 1) * 2, 3, 1);
-	}*/
-	//s.setBounds(0, 0, 64, 36);
+	for (int i = 1; i < 16; ++i) {
+		scene.addPlatform(i * 4, (i - 1) * 2, 3, 1);
+	}
+	scene.setBounds(0, 0, 64, 36);
 	
+/*
 	scene.addPlatform(0, 0, 1, 1);
 	scene.addPlatform(0, 17, 1, 1);
 	scene.addPlatform(63, 0, 1, 1);
 	scene.addPlatform(63, 17, 1, 1);
 	scene.setBounds(0, 0, 64, 18);
+*/
 
 	// Start the frame timer
 	frameTimer.start();
