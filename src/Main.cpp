@@ -6,9 +6,12 @@ using namespace std;
 
 #include "Camera.hpp"
 #include "FrameTimer.hpp"
+#include "PhysicsSystem.hpp"
 #include "RenderSystem.hpp"
 #include "Scene.hpp"
 #include "Types.hpp"
+
+void pollInput(Input& input, bool& run);
 
 int main(int argc, char* argv[])
 {
@@ -22,8 +25,9 @@ int main(int argc, char* argv[])
 
 	Camera cam(SCREEN_WIDTH, SCREEN_HEIGHT);
 	FrameTimer frameTimer(100);
+	Input input;
 	RenderSystem renderer(SCREEN_WIDTH, SCREEN_HEIGHT, PS_SCALE);
-	SDL_Event e;
+	PhysicsSystem physics;
 	Scene s(PS_SCALE);
 
 	bool fps = false;   // Display fps counter
@@ -74,83 +78,12 @@ int main(int argc, char* argv[])
 	frameTimer.start();
 
 	// Game loop
-	bool left = false;
-	bool right = false;
-	bool up = false;
-	bool down = false;
-
 	while (run) {
-		// Handle input events
-		while (SDL_PollEvent(&e) != 0) {
-			switch (e.type) {
-			case SDL_QUIT:
-				// Exit button pressed
-				run = false;
-				break;
-			case SDL_KEYDOWN:
-				// Check key presses
-				switch (e.key.keysym.sym) {
-				case SDLK_q:
-					run = false;
-					break;
-				case SDLK_LEFT:
-					left = true;
-					break;
-				case SDLK_RIGHT:
-					right = true;
-					break;
-				case SDLK_UP:
-					up = true;
-					break;
-				case SDLK_DOWN:
-					down = true;
-				default:
-					break;
-				}
-				break;
-			case SDL_KEYUP:
-				// check key releases
-				switch (e.key.keysym.sym) {
-					case SDLK_LEFT:
-						left = false;
-						break;
-					case SDLK_RIGHT:
-						right = false;
-						break;
-					case SDLK_UP:
-						up = false;
-						break;
-					case SDLK_DOWN:
-						down = false;
-						break;
-					default:
-						break;
-				}
-				break;
-            default:
-            	break;
-			}
-        }
+		// Input
+		pollInput(input, run);
 
-		// Physics Stuff
-		int camDifX = frameTimer.getLastFrameTime() / 2;
-		int camDifY = frameTimer.getLastFrameTime() / 2;
-		
-		if (left && !right) {
-			camDifX *= -1;
-		}
-		else if (!left && !right) {
-			camDifX = 0;
-		}
-
-		if (down && !up) {
-			camDifY *= -1;
-		}
-		else if (!down && !up) {
-			camDifY = 0;
-		}
-
-		cam.shiftPosition(camDifX, camDifY, s.getWorldBounds());
+		// Physics 
+		physics.step(s, cam, input, frameTimer.getLastFrameTime());
 
         // Render
         renderer.render(s, cam);
@@ -164,3 +97,72 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+
+void pollInput(Input& input, bool& run)
+{
+	SDL_Event e;
+
+	while (SDL_PollEvent(&e) != 0) {
+		switch (e.type) {
+			case SDL_QUIT:      // Exit button pressed
+				run = false;
+				break;
+				
+			case SDL_KEYDOWN:   // Check key presses
+				switch (e.key.keysym.sym) {
+					case SDLK_q:
+						run = false;
+						break;
+						
+					case SDLK_DOWN:
+						input.down = true;
+						break;
+						
+					case SDLK_LEFT:
+						input.left = true;
+						break;
+						
+					case SDLK_RIGHT:
+						input.right = true;
+						break;
+			
+					case SDLK_UP:
+						input.up = true;
+						break;
+						
+					default:
+						break;
+				}
+				
+				break;
+				
+			case SDL_KEYUP:     // Check key releases
+				switch (e.key.keysym.sym) {
+					case SDLK_DOWN:
+						input.down = false;
+						break;
+						
+					case SDLK_LEFT:
+						input.left = false;
+						break;
+						
+					case SDLK_RIGHT:
+						input.right = false;
+						break;
+						
+					case SDLK_UP:
+						input.up = false;
+						break;
+						
+					default:
+						break;
+				}   
+			
+				break;
+			
+    		default:
+           		break;
+		}
+    }
+}
+
