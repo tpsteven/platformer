@@ -1,5 +1,5 @@
-#ifndef RENDER_SYSTEM_HPP
-#define RENDER_SYSTEM_HPP
+#ifndef RENDER_HPP
+#define RENDER_HPP
 
 #include <sstream>
 #include <string>
@@ -11,13 +11,13 @@ using namespace std;
 #include "Scene.hpp"
 #include "Types.hpp"
 
-class RenderSystem {
+class Render{
 public:
-	RenderSystem(uint32_t width, uint32_t height, uint32_t bwScale);
-	~RenderSystem();
+	Render(uint32_t width, uint32_t height, uint32_t bwScale);
+	~Render();
 
 	bool init(const char* title, bool sw);
-	void render(const Scene& scene, const Camera& cam);
+	void render(const Scene& scene, const Camera& camera);
 
 private:
 	SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer);

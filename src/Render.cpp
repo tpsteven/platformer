@@ -1,4 +1,4 @@
-#include "RenderSystem.hpp"
+#include "Render.hpp"
 
 #include <string>
 #include <sstream>
@@ -12,14 +12,14 @@ using namespace std;
 #include "Scene.hpp"
 #include "Types.hpp"
 
-RenderSystem::RenderSystem(uint32_t width, uint32_t height, uint32_t bwScale)
+Render::Render(uint32_t width, uint32_t height, uint32_t bwScale)
 	: width(width), height(height), bwScale(bwScale)
 {
 	// intentionally empty
-	// initialization occurs in RenderSystem::init()
+	// initialization occurs in Render::init()
 }
 
-RenderSystem::~RenderSystem()
+Render::~Render()
 {
 	// Destroy window
 	if (window != nullptr) {
@@ -37,8 +37,7 @@ RenderSystem::~RenderSystem()
 }
 
 bool
-RenderSystem::init(const char* title,
-                   bool sw)
+Render::init(const char* title, bool sw)
 {
 	// Set title
 	this->title = title;
@@ -94,7 +93,7 @@ RenderSystem::init(const char* title,
 }
 
 void
-RenderSystem::render(const Scene& scene, const Camera& cam)
+Render::render(const Scene& scene, const Camera& camera)
 {
 	SDL_Rect intersectRect;
 	SDL_Rect worldRect;
@@ -107,8 +106,8 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 	};
 
 	auto camShift = [&] (SDL_Rect& rect) {
-		rect.x -= cam.getRect().x;
-		rect.y -= cam.getRect().y;
+		rect.x -= camera.getRect().x;
+		rect.y -= camera.getRect().y;
 	};
 
 	auto worldToSDL = [&] (SDL_Rect& rect) {
@@ -123,7 +122,7 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
 	worldRect = scene.getBounds();
 	blockToWorld(worldRect);
-	SDL_IntersectRect(&worldRect, &cam.getRect(), &intersectRect);
+	SDL_IntersectRect(&worldRect, &camera.getRect(), &intersectRect);
 	camShift(intersectRect);
 	worldToSDL(intersectRect);
 	SDL_RenderFillRect(renderer, &intersectRect);
@@ -134,7 +133,7 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 		worldRect = p.getRect();
 		blockToWorld(worldRect);
 
-		if (SDL_IntersectRect(&worldRect, &cam.getRect(), &intersectRect) ==
+		if (SDL_IntersectRect(&worldRect, &camera.getRect(), &intersectRect) ==
 		    SDL_TRUE) {
 			camShift(intersectRect);
 			worldToSDL(intersectRect);
@@ -146,7 +145,7 @@ RenderSystem::render(const Scene& scene, const Camera& cam)
 }
 
 SDL_Texture* 
-RenderSystem::loadTexture(const char* path, SDL_Renderer* renderer)
+Render::loadTexture(const char* path, SDL_Renderer* renderer)
 {
 	//The final texture
 	SDL_Texture* newTexture = NULL;

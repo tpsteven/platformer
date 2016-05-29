@@ -7,7 +7,7 @@ using namespace std;
 #include "Camera.hpp"
 #include "FrameTimer.hpp"
 #include "Physics.hpp"
-#include "RenderSystem.hpp"
+#include "Render.hpp"
 #include "Scene.hpp"
 #include "Types.hpp"
 
@@ -23,12 +23,12 @@ int main(int argc, char* argv[])
 	// TODO: get SCREEN_WIDTH, SCREEN_HEIGHT from args or resolution
 	// TODO: read settings from cfg/ (indexed at cfg/cfg.index)
 
-	Camera cam(SCREEN_WIDTH, SCREEN_HEIGHT);
+	Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
 	FrameTimer frameTimer(100);
 	Input input;
-	RenderSystem renderer(SCREEN_WIDTH, SCREEN_HEIGHT, PS_SCALE);
+	Render renderer(SCREEN_WIDTH, SCREEN_HEIGHT, PS_SCALE);
 	Physics physics;
-	Scene s(PS_SCALE);
+	Scene scene(PS_SCALE);
 
 	bool fps = false;   // Display fps counter
 	bool run = true;    // Run until false
@@ -68,11 +68,11 @@ int main(int argc, char* argv[])
 	}*/
 	//s.setBounds(0, 0, 64, 36);
 	
-	s.addPlatform(0, 0, 1, 1);
-	s.addPlatform(0, 17, 1, 1);
-	s.addPlatform(63, 0, 1, 1);
-	s.addPlatform(63, 17, 1, 1);
-	s.setBounds(0, 0, 64, 18);
+	scene.addPlatform(0, 0, 1, 1);
+	scene.addPlatform(0, 17, 1, 1);
+	scene.addPlatform(63, 0, 1, 1);
+	scene.addPlatform(63, 17, 1, 1);
+	scene.setBounds(0, 0, 64, 18);
 
 	// Start the frame timer
 	frameTimer.start();
@@ -83,10 +83,10 @@ int main(int argc, char* argv[])
 		pollInput(input, run);
 
 		// Physics 
-		physics.step(s, cam, input, frameTimer.getLastFrameTime());
+		physics.step(scene, camera, input, frameTimer.getLastFrameTime());
 
         // Render
-        renderer.render(s, cam);
+        renderer.render(scene, camera);
 	
 		// Update frame time and display
 		frameTimer.tick();
