@@ -1,6 +1,9 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
+#include <string>
+using namespace std;
+
 typedef unsigned int uint32_t;
 typedef unsigned char uchar_t;
 
@@ -14,6 +17,19 @@ struct Input {
 	bool b     = false;
 	bool x     = false;
 	bool y     = false;
+};
+
+struct RenderConfig {
+	const char* filename = "render.cfg";
+
+	bool fullscreen = false;
+	bool hardware_accelerated = true;       // Default to hardware-accelerated 
+	                                        //   renderer
+	bool show_fps = false;                  // Display fps counter
+	uint32_t background_camera = 0x751fff;
+	uint32_t background_level = 0x000000;
+	uint32_t window_height = 720;
+	uint32_t window_width = 1280;	
 };
 
 #endif

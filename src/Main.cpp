@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <string>
 using namespace std;
@@ -11,6 +13,7 @@ using namespace std;
 #include "Scene.hpp"
 #include "Types.hpp"
 
+RenderConfig* loadRenderConfig();
 void pollInput(Input& input, bool& run);
 
 int main(int argc, char* argv[])
@@ -30,17 +33,22 @@ int main(int argc, char* argv[])
 	Physics physics;
 	Scene scene(PS_SCALE);
 
-	bool fps = false;   // Display fps counter
-	bool run = true;    // Run until false
-	bool sw = false;    // Default to hardware-accelerated renderer
+	// Configuration
+	RenderConfig* renderConfig;
 
+	bool run = true;    // Run until false
+
+	// Load RenderConfig from file
+	renderConfig = loadRenderConfig();
+
+	// Get command-line arguments
 	for (int i = 1; i < argc; ++i) {
 		string arg = argv[i];
 
 		if (arg.find('=') == string::npos) {
 			// argument is a flag
 			if (arg.compare("sw") == 0) {
-				sw = true;
+				renderConfig->hardware_accelerated = false;
 			}
 		}
 		else {
@@ -50,13 +58,13 @@ int main(int argc, char* argv[])
 			
 			// Check key-value settings here
 			if (k.compare("fps") == 0) {
-				fps = v.compare("true") == 0 ? true : false;
+				renderConfig->show_fps = v.compare("true") == 0;
 			}
 		}
 	}
 
 	// Initialize the renderer (including SDL and required libraries)
-	if (!renderer.init(SCREEN_TITLE, sw)) {
+	if (!renderer.init(SCREEN_TITLE, !renderConfig->hardware_accelerated)) {
 		return -1;
 	}
 
@@ -92,12 +100,66 @@ int main(int argc, char* argv[])
 	
 		// Update frame time and display
 		frameTimer.tick();
-		if (fps && frameTimer.getFrameCount() % 100 == 0) {
+		if (renderConfig->show_fps && frameTimer.getFrameCount() % 100 == 0) {
 			cout << frameTimer.getFps() << endl;
 		}
 	}
 
+	// Clean up
+	if (renderConfig != nullptr) {
+		delete renderConfig;
+	}
+
     return 0;
+}
+
+RenderConfig* loadRenderConfig()
+{
+	RenderConfig* r = new RenderConfig();
+
+	string line;
+	fstream in(r->filename, ios_base::in);
+	
+	while(getline(in, line)) {
+		if (line.find('=') == string::npos) {
+			// argument is a flag
+			cout << "Unknown RenderConfig flag: " << line << endl;
+		}
+		else {
+			// argument is a key-value pair (separated by '=')
+			string k = line.substr(0, line.find('='));
+			string v = line.substr(line.find('=') + 1);
+			
+			// Check key-value settings here
+			if (k.compare("background_camera") == 0) {
+				r->background_camera = atoi(v.c_str());
+			}
+			else if (k.compare("background_level") == 0) {
+				r->background_level = atoi(v.c_str());
+			}
+			else if (k.compare("fullscreen") == 0) {
+				r->fullscreen = v.compare("true") == 0;
+			}
+			else if (k.compare("hardware_accelerated") == 0) {
+				r->hardware_accelerated = v.compare("true") == 0;
+			}
+			else if (k.compare("show_fps") == 0) {
+				r->show_fps = v.compare("true") == 0;
+			}
+			else if (k.compare("window_height") == 0) {
+				r->window_height = atoi(v.c_str());
+			}
+			else if (k.compare("window_width") == 0) {
+				r->window_width = atoi(v.c_str());
+			}
+			else {
+				cout << "Unknown RenderConfig key: " << k << endl;
+			}
+		}
+		
+	}
+
+	return r;
 }
 
 void pollInput(Input& input, bool& run)
