@@ -1,14 +1,14 @@
-#ifndef PHYSICS_SYSTEM_HPP
-#define PHYSICS_SYSTEM_HPP
+#ifndef PHYSICS_HPP
+#define PHYSICS_HPP
 
 #include "Camera.hpp"
 #include "Scene.hpp"
 #include "Types.hpp"
 
-class PhysicsSystem {
+class Physics {
 public:
-	PhysicsSystem();
-	~PhysicsSystem();
+	Physics();
+	~Physics();
 
 	void step(Scene& scene, 
 	          Camera& camera, 

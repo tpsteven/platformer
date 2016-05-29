@@ -1,21 +1,21 @@
-#include "PhysicsSystem.hpp"
+#include "Physics.hpp"
 
-PhysicsSystem::PhysicsSystem()
+Physics::Physics()
 {
 	// intentionally empty
 }
 
-PhysicsSystem::~PhysicsSystem()
+Physics::~Physics()
 {
 	// intentionally empty
 }
 
 
 void
-PhysicsSystem::step(Scene& scene, 
-                    Camera& camera, 
-                    const Input& input, 
-                    uint32_t lastFrameTime)
+Physics::step(Scene& scene, 
+              Camera& camera, 
+              const Input& input, 
+              uint32_t lastFrameTime)
 {
 	int camDifX = lastFrameTime / 2;
 	int camDifY = lastFrameTime / 2;

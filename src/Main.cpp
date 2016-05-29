@@ -6,7 +6,7 @@ using namespace std;
 
 #include "Camera.hpp"
 #include "FrameTimer.hpp"
-#include "PhysicsSystem.hpp"
+#include "Physics.hpp"
 #include "RenderSystem.hpp"
 #include "Scene.hpp"
 #include "Types.hpp"
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	FrameTimer frameTimer(100);
 	Input input;
 	RenderSystem renderer(SCREEN_WIDTH, SCREEN_HEIGHT, PS_SCALE);
-	PhysicsSystem physics;
+	Physics physics;
 	Scene s(PS_SCALE);
 
 	bool fps = false;   // Display fps counter
