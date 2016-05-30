@@ -1,5 +1,6 @@
 #include "Render.hpp"
 
+#include <iostream>
 #include <string>
 #include <sstream>
 using namespace std;
@@ -12,8 +13,8 @@ using namespace std;
 #include "Scene.hpp"
 #include "Types.hpp"
 
-Render::Render(uint32_t width, uint32_t height, uint32_t bwScale)
-	: width(width), height(height), bwScale(bwScale)
+Render::Render(uint32_t bwScale)
+	: bwScale(bwScale)
 {
 	// intentionally empty
 	// initialization occurs in Render::init()
@@ -37,11 +38,88 @@ Render::~Render()
 }
 
 bool
-Render::init(const char* title, bool sw)
+Render::createWindow(const char* title, const RenderConfig* renderConfig)
 {
+	if (window != nullptr) {
+		cout << "[ERROR] Render::createWindow() - window already exists" << endl;
+	}
+
 	// Set title
 	this->title = title;
 	
+	// Create window
+	uint32_t windowFlags = SDL_WINDOW_INPUT_GRABBED;
+
+	if (renderConfig->fullscreen) {
+		windowFlags |= SDL_WINDOW_FULLSCREEN;
+	}
+
+	window = SDL_CreateWindow(title,
+	                          SDL_WINDOWPOS_CENTERED,
+	                          SDL_WINDOWPOS_CENTERED,
+	                          renderConfig->window_width,
+	                          renderConfig->window_height,
+	                          windowFlags);
+
+	// If unsuccessful: print error code and return
+	if (window == NULL) {
+		cout << "Window could not be created: " <<  SDL_GetError() << endl;
+		return false;
+	}
+
+	// Get window width and height
+	SDL_GetWindowSize(window, &width, &height);
+	
+	// Create renderer for window
+	uint32_t rendererFlags = SDL_RENDERER_SOFTWARE;
+
+	if (renderConfig->hardware_accelerated) {
+		rendererFlags |= SDL_RENDERER_ACCELERATED;
+	}
+
+	renderer = SDL_CreateRenderer(window, -1, rendererFlags);
+	
+	// If unsuccessful: default to software renderer without vsync
+	if (renderer == NULL) {
+		cout << "Falling back to software renderer without vsync." << endl;
+		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+
+		if (renderer == NULL) {
+			cout << "Renderer could not be created: " << SDL_GetError() << endl;
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool
+Render::closeWindow()
+{
+	bool result = true;
+
+	// Destroy window
+	if (window != nullptr) {
+		SDL_DestroyWindow(window);
+	}
+	else {
+		result = false;
+	}
+	
+	// Destroy renderer
+	if (renderer != nullptr) {
+		SDL_DestroyRenderer(renderer);
+	}
+	else {
+		result = false;
+	}
+
+	return result;
+}
+
+bool
+Render::init()
+{
 	// Attempt to initialize SDL
 	// If unsuccessful, print error code and return
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -58,37 +136,6 @@ Render::init(const char* title, bool sw)
 		return false;
 	}
 	
-	// Create window
-	window = SDL_CreateWindow(title,
-	                          SDL_WINDOWPOS_CENTERED,
-	                          SDL_WINDOWPOS_CENTERED,
-	                          width,
-	                          height,
-	                          SDL_WINDOW_FULLSCREEN);
-	
-	// If unsuccessful: print error code and return
-	if (window == NULL) {
-		printf("Window could not be created: %s\n", SDL_GetError());
-		return false;
-	}
-	
-	// Create renderer for window
-	if (sw) {
-		renderer = SDL_CreateRenderer(window,
-	                                  -1,
-	                                  SDL_RENDERER_SOFTWARE);
-	}
-	else {
-		renderer = SDL_CreateRenderer(window,
-	                                  -1,
-	                                  SDL_RENDERER_ACCELERATED);
-	}
-	// If unsuccessful: print error code and return
-	if (renderer == NULL) {
-		printf("Renderer could not be created: %s\n", SDL_GetError());
-		return false;
-	}
-
 	return true;
 }
 

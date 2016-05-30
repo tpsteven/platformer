@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 	Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
 	FrameTimer frameTimer(100);
 	Input input;
-	Render renderer(SCREEN_WIDTH, SCREEN_HEIGHT, PS_SCALE);
+	Render renderer(PS_SCALE);
 	Physics physics;
 	Scene scene(PS_SCALE);
 
@@ -64,11 +64,14 @@ int main(int argc, char* argv[])
 	}
 
 	// Initialize the renderer (including SDL and required libraries)
-	if (!renderer.init(SCREEN_TITLE, !renderConfig->hardware_accelerated)) {
+	if (!renderer.init()) {
 		return -1;
 	}
 
-	// TODO: read list of levels from lvl/lvl.index
+	// TODO: read list of levels from lvl/lvl.index, allow user to make selection
+
+	// Create a window
+	renderer.createWindow(SCREEN_TITLE, renderConfig);
 
 	// TODO: load scene
 	for (int i = 1; i < 16; ++i) {
