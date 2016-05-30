@@ -1,0 +1,2 @@
+When window isn't fullscreen and show_fps is enabled, update the window title
+	instead of printing to the console.
