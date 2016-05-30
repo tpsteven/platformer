@@ -9,6 +9,7 @@ using namespace std;
 #include <SDL_image.h>
 
 #include "Camera.hpp"
+#include "Log.hpp"
 #include "Platform.hpp"
 #include "Scene.hpp"
 #include "Types.hpp"
@@ -41,7 +42,7 @@ bool
 Render::createWindow(const char* title, const RenderConfig* renderConfig)
 {
 	if (window != nullptr) {
-		cout << "[ERROR] Render::createWindow() - window already exists" << endl;
+		Log::error("Render::createWindow()", "Window already exists");
 	}
 
 	// Set title
@@ -56,9 +57,7 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 		
 		SDL_DisplayMode displayMode;
 		if (SDL_GetDesktopDisplayMode(0, &displayMode) != 0) {
-	     	cout << "SDL_GetDesktopDisplayMode failed: " 
-				 << SDL_GetError() 
-				 << endl;
+			Log::error("Render::createWindow()", SDL_GetError());
 			return 1;
 		}
 
@@ -80,7 +79,7 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 
 	// If unsuccessful: print error code and return
 	if (window == NULL) {
-		cout << "Window could not be created: " <<  SDL_GetError() << endl;
+		Log::error("Render::createWindow()", SDL_GetError());
 		return false;
 	}
 
@@ -95,11 +94,12 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 	
 	// If unsuccessful: default to software renderer without vsync
 	if (renderer == NULL) {
-		cout << "Falling back to software renderer without vsync." << endl;
+		Log::warning("Render::createWindow()",
+		             "Falling back to software renderer without vsync");
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 
 		if (renderer == NULL) {
-			cout << "Renderer could not be created: " << SDL_GetError() << endl;
+			Log::error("Render::createWindow()", SDL_GetError());
 			return false;
 		}
 	}
@@ -137,7 +137,7 @@ Render::init()
 	// Attempt to initialize SDL
 	// If unsuccessful, print error code and return
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		printf("SDL could not initialize: %s\n", SDL_GetError());
+		Log::error("Render::init()", SDL_GetError());
 		return false;
 	}
 	
@@ -145,8 +145,7 @@ Render::init()
     // If unsuccessful, print error code and return
 	int imgFlags = IMG_INIT_PNG;
 	if (!(IMG_Init(imgFlags) & imgFlags)) {
-		printf("SDL_image could not initialize! SDL_image Error: %s\n", 
-		       IMG_GetError());
+		Log::error("Render::init()", IMG_GetError());
 		return false;
 	}
 	
@@ -223,23 +222,23 @@ Render::updateFps(float fps)
 SDL_Texture* 
 Render::loadTexture(const char* path, SDL_Renderer* renderer)
 {
+	stringstream error;
+
 	//The final texture
 	SDL_Texture* newTexture = NULL;
 
 	//Load image at specified path
 	SDL_Surface* loadedSurface = IMG_Load(path);
 	if (loadedSurface == NULL) {
-		printf("Unable to load image %s! SDL_image Error: %s\n",
-		       path,
-		       IMG_GetError());
+		error << "(" << path << ") " << IMG_GetError();
+		Log::error("Render::loadTexture()", error); 
 	}
 	else {
 		//Create texture from surface pixels
 		newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
 		if (newTexture == NULL) {
-			printf("Unable to create texture from %s! SDL Error: %s\n", 
-			       path,
-			       SDL_GetError());
+			error << "(" << path << ") " << SDL_GetError();
+			Log::error("Render::loadTexture()", error);
 		}
 		
 		//Get rid of old loaded surface

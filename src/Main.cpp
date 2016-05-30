@@ -8,6 +8,7 @@ using namespace std;
 
 #include "Camera.hpp"
 #include "FrameTimer.hpp"
+#include "Log.hpp"
 #include "Physics.hpp"
 #include "Render.hpp"
 #include "Scene.hpp"
@@ -20,7 +21,7 @@ void pollInput(Input& input, bool& run);
 int main(int argc, char* argv[])
 {
 	// Const values
-	const uint32_t PS_SCALE       = 40;  // screen-pixel to sprite-pixel scale
+	const uint32_t PS_SCALE = 40;  // screen-pixel to sprite-pixel scale
 
 	// Load RenderConfig from file
 	RenderConfig* renderConfig = loadRenderConfig();
@@ -93,6 +94,8 @@ int main(int argc, char* argv[])
 
 void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
 {
+	stringstream error;
+
 	for (int i = 1; i < argc; ++i) {
 		string arg = argv[i];
 
@@ -100,6 +103,10 @@ void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
 			// argument is a flag
 			if (arg.compare("sw") == 0) {
 				renderConfig->hardware_accelerated = false;
+			}
+			else {
+				error << "Unknown arg (flag): " << arg;
+				Log::warning("Main::loadArgs()", error);
 			}
 		}
 		else {
@@ -115,7 +122,8 @@ void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
 				renderConfig->show_fps = v.compare("true") == 0;
 			}
 			else {
-				cout << "Unknown arg: " << arg << endl;
+				error << "Unknown arg (key-value pair): " << arg;
+				Log::warning("Main::loadArgs()", error);
 			}
 		}
 	}
@@ -126,12 +134,14 @@ RenderConfig* loadRenderConfig()
 	RenderConfig* r = new RenderConfig();
 
 	string line;
+	stringstream error;
 	fstream in(r->filename, ios_base::in);
 	
 	while(getline(in, line)) {
 		if (line.find('=') == string::npos) {
 			// argument is a flag
-			cout << "Unknown RenderConfig flag: " << line << endl;
+			error << "Unknown arg (flag): " << line;
+			Log::warning("Main::loadRenderConfig()", error);
 		}
 		else {
 			// argument is a key-value pair (separated by '=')
@@ -164,10 +174,10 @@ RenderConfig* loadRenderConfig()
 				r->window_width = atoi(v.c_str());
 			}
 			else {
-				cout << "Unknown RenderConfig key: " << k << endl;
+				error << "Unknown arg (key-value pair): " << line;
+				Log::warning("Main::loadRenderConfig()", error);
 			}
 		}
-		
 	}
 
 	return r;
