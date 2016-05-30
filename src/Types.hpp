@@ -28,6 +28,7 @@ struct RenderConfig {
 	bool show_fps = false;                  // Display fps counter
 	uint32_t background_camera = 0x751fff;
 	uint32_t background_level = 0x000000;
+	uint32_t frame_timer_window = 100;
 	uint32_t window_height = 720;
 	uint32_t window_width = 1280;	
 };

@@ -13,35 +13,86 @@ using namespace std;
 #include "Scene.hpp"
 #include "Types.hpp"
 
+void loadArgs(int argc, char* argv[], RenderConfig* renderConfig);
 RenderConfig* loadRenderConfig();
 void pollInput(Input& input, bool& run);
 
 int main(int argc, char* argv[])
 {
-	const char     SCREEN_TITLE[] = "platformer";
-	const uint32_t SCREEN_WIDTH   = 1920;
-	const uint32_t SCREEN_HEIGHT  = 1080;
+	// Const values
 	const uint32_t PS_SCALE       = 40;  // screen-pixel to sprite-pixel scale
 
-	// TODO: get SCREEN_WIDTH, SCREEN_HEIGHT from args or resolution
-	// TODO: read settings from cfg/ (indexed at cfg/cfg.index)
+	// Load RenderConfig from file
+	RenderConfig* renderConfig = loadRenderConfig();
 
-	Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT);
-	FrameTimer frameTimer(100);
+	// Get command-line arguments
+	loadArgs(argc, argv, renderConfig);
+
+	// TODO: read list of levels from lvl/lvl.index, allow user to make selection
+
+	bool run = true;
+	FrameTimer frameTimer(renderConfig->frame_timer_window);
 	Input input;
 	Render renderer(PS_SCALE);
 	Physics physics;
 	Scene scene(PS_SCALE);
 
-	// Configuration
-	RenderConfig* renderConfig;
+	// Initialize the renderer (including SDL and required libraries)
+	if (!renderer.init()) {
+		return -1;
+	}
 
-	bool run = true;    // Run until false
+	// Create a window
+	renderer.createWindow("platformer", renderConfig);
 
-	// Load RenderConfig from file
-	renderConfig = loadRenderConfig();
+	// Create a camera (TODO: move to scene loading)
+	Camera camera(renderer.getWidth(), renderer.getHeight());
 
-	// Get command-line arguments
+	// TODO: load scene
+	for (int i = 1; i < 16; ++i) {
+		scene.addPlatform(i * 4, (i - 1) * 2, 3, 1);
+	}
+	
+	scene.setBounds(0, 0, 64, 36);
+	
+/*
+	scene.addPlatform(0, 0, 1, 1);
+	scene.addPlatform(0, 17, 1, 1);
+	scene.addPlatform(63, 0, 1, 1);
+	scene.addPlatform(63, 17, 1, 1);
+	scene.setBounds(0, 0, 64, 18);
+*/
+
+	frameTimer.start();
+
+	// Game loop
+	while (run) {
+		// Input
+		pollInput(input, run);
+
+		// Physics 
+		physics.step(scene, camera, input, frameTimer.getLastFrameTime());
+
+        // Render
+        renderer.render(scene, camera);
+
+		// Update FPS
+        frameTimer.tick();
+		if (renderConfig->show_fps && frameTimer.getFrameCount() % 100 == 0) {
+			renderer.updateFps(frameTimer.getFps());
+		}
+	}
+
+	// Clean up
+	if (renderConfig != nullptr) {
+		delete renderConfig;
+	}
+
+    return 0;
+}
+
+void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
+{
 	for (int i = 1; i < argc; ++i) {
 		string arg = argv[i];
 
@@ -57,63 +108,17 @@ int main(int argc, char* argv[])
 			string v = arg.substr(arg.find('=') + 1);
 			
 			// Check key-value settings here
-			if (k.compare("fps") == 0) {
+			if (k.compare("fullscreen") == 0) {
+				renderConfig->fullscreen = v.compare("true") == 0;
+			}
+			else if (k.compare("show_fps") == 0) {
 				renderConfig->show_fps = v.compare("true") == 0;
+			}
+			else {
+				cout << "Unknown arg: " << arg << endl;
 			}
 		}
 	}
-
-	// Initialize the renderer (including SDL and required libraries)
-	if (!renderer.init()) {
-		return -1;
-	}
-
-	// TODO: read list of levels from lvl/lvl.index, allow user to make selection
-
-	// Create a window
-	renderer.createWindow(SCREEN_TITLE, renderConfig);
-
-	// TODO: load scene
-	for (int i = 1; i < 16; ++i) {
-		scene.addPlatform(i * 4, (i - 1) * 2, 3, 1);
-	}
-	scene.setBounds(0, 0, 64, 36);
-	
-/*
-	scene.addPlatform(0, 0, 1, 1);
-	scene.addPlatform(0, 17, 1, 1);
-	scene.addPlatform(63, 0, 1, 1);
-	scene.addPlatform(63, 17, 1, 1);
-	scene.setBounds(0, 0, 64, 18);
-*/
-
-	// Start the frame timer
-	frameTimer.start();
-
-	// Game loop
-	while (run) {
-		// Input
-		pollInput(input, run);
-
-		// Physics 
-		physics.step(scene, camera, input, frameTimer.getLastFrameTime());
-
-        // Render
-        renderer.render(scene, camera);
-	
-		// Update frame time and display
-		frameTimer.tick();
-		if (renderConfig->show_fps && frameTimer.getFrameCount() % 100 == 0) {
-			cout << frameTimer.getFps() << endl;
-		}
-	}
-
-	// Clean up
-	if (renderConfig != nullptr) {
-		delete renderConfig;
-	}
-
-    return 0;
 }
 
 RenderConfig* loadRenderConfig()
@@ -139,6 +144,9 @@ RenderConfig* loadRenderConfig()
 			}
 			else if (k.compare("background_level") == 0) {
 				r->background_level = atoi(v.c_str());
+			}
+			else if (k.compare("frame_timer_window") == 0) {
+				r->frame_timer_window = atoi(v.c_str());
 			}
 			else if (k.compare("fullscreen") == 0) {
 				r->fullscreen = v.compare("true") == 0;

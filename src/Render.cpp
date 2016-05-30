@@ -46,12 +46,29 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 
 	// Set title
 	this->title = title;
-	
+
 	// Create window
 	uint32_t windowFlags = SDL_WINDOW_INPUT_GRABBED;
 
 	if (renderConfig->fullscreen) {
 		windowFlags |= SDL_WINDOW_FULLSCREEN;
+		windowed = false;
+		
+		SDL_DisplayMode displayMode;
+		if (SDL_GetDesktopDisplayMode(0, &displayMode) != 0) {
+	     	cout << "SDL_GetDesktopDisplayMode failed: " 
+				 << SDL_GetError() 
+				 << endl;
+			return 1;
+		}
+
+		width = displayMode.w;
+		height = displayMode.h;
+	}
+	else {
+		windowed = true;
+		width = renderConfig->window_width;
+		height = renderConfig->window_height;
 	}
 
 	window = SDL_CreateWindow(title,
@@ -67,9 +84,6 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 		return false;
 	}
 
-	// Get window width and height
-	SDL_GetWindowSize(window, &width, &height);
-	
 	// Create renderer for window
 	uint32_t rendererFlags = SDL_RENDERER_SOFTWARE;
 
@@ -189,6 +203,21 @@ Render::render(const Scene& scene, const Camera& camera)
 	}
 
 	SDL_RenderPresent(renderer);
+}
+
+void
+Render::updateFps(float fps)
+{
+	if (windowed) {
+		titleStream.str("");
+		titleStream.clear();
+			
+		titleStream << title << " (" << fps << " fps)";
+		SDL_SetWindowTitle(window, titleStream.str().c_str());
+	}
+	else {
+		cout << fps << " fps" << endl;
+	}
 }
 
 SDL_Texture* 

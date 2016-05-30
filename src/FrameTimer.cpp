@@ -19,17 +19,22 @@ FrameTimer::~FrameTimer()
 }
 
 void
+FrameTimer::reset()
+{
+	currFrame = 0;
+	frameDeltas = queue<uint32_t>();
+	frameCount = 0;
+	ticking = false;
+}
+
+void
 FrameTimer::start()
 {
 	// check that timer isn't already ticking
 	assert(!ticking);
 	ticking = true;
 	
-	// clear all values
-	frameDeltas = queue<uint32_t>();
-	currFrameTime = 0;
-	frameCount = 0;
-	lastFrameTime = SDL_GetTicks();
+	lastFrame = SDL_GetTicks();
 }
 
 void
@@ -47,18 +52,16 @@ FrameTimer::tick()
 	assert(ticking);
 	++frameCount;
 	
-	currFrameTime = SDL_GetTicks();
-	frameDeltas.push(currFrameTime - lastFrameTime);
-	frameDeltaTotal += currFrameTime - lastFrameTime;
-	lastFrameTime = currFrameTime;
+	currFrame = SDL_GetTicks();
+	frameDeltas.push(currFrame - lastFrame);
+	frameDeltaTotal += currFrame - lastFrame;
+	lastFrame= currFrame;
 
 	if (frameDeltas.size() > windowSize) {
 		frameDeltaTotal -= frameDeltas.front();
 		frameDeltas.pop();
 	}
 	
-	if (frameDeltas.size() == windowSize) {
-		fps = 1000 * windowSize / frameDeltaTotal;
-	}
+	fps = 1000 * frameDeltas.size() / frameDeltaTotal;
 }
 

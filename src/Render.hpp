@@ -20,17 +20,28 @@ public:
 	bool createWindow(const char* title, const RenderConfig* renderConfig);
 	bool init();
 	void render(const Scene& scene, const Camera& camera);
+	void updateFps(float fps);
+
+	int getHeight() const {
+		return height;
+	}
+
+	int getWidth() const {
+		return width;
+	}
 
 private:
 	SDL_Texture* loadTexture(const char* path, SDL_Renderer* renderer);
 
 	const uint32_t bwScale; // size of block, in world-pixels
 
+	bool          windowed;
 	int           height;
 	int           width;
 	SDL_Renderer* renderer = nullptr;
 	SDL_Window*   window = nullptr;
 	string        title;
+	stringstream  titleStream;
 };
 
 #endif
