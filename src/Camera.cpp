@@ -11,8 +11,6 @@ Camera::Camera(uint32_t width, uint32_t height)
 	rect.y = 0;
 	rect.w = width;
 	rect.h = height;
-
-	cout << "Camera: (" << width << ", " << height << ")" << endl;
 }
 
 Camera::~Camera()

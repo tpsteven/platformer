@@ -74,8 +74,8 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 	window = SDL_CreateWindow(title,
 	                          SDL_WINDOWPOS_CENTERED,
 	                          SDL_WINDOWPOS_CENTERED,
-	                          renderConfig->window_width,
-	                          renderConfig->window_height,
+	                          width,
+	                          height,
 	                          windowFlags);
 
 	// If unsuccessful: print error code and return

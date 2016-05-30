@@ -20,7 +20,7 @@ struct Input {
 };
 
 struct RenderConfig {
-	const char* filename = "render.cfg";
+	const char* filename = "cfg/render.cfg";
 
 	bool fullscreen = false;
 	bool hardware_accelerated = true;       // Default to hardware-accelerated 
