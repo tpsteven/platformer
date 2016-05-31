@@ -23,14 +23,14 @@ Render::Render(uint32_t bwScale)
 
 Render::~Render()
 {
-	// Destroy window
-	if (window != nullptr) {
-		SDL_DestroyWindow(window);
-	}
-	
 	// Destroy renderer
 	if (renderer != nullptr) {
 		SDL_DestroyRenderer(renderer);
+	}
+	
+	// Destroy window
+	if (window != nullptr) {
+		SDL_DestroyWindow(window);
 	}
 	
 	// Quit SDL subsystems
