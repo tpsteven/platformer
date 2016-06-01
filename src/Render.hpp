@@ -8,6 +8,7 @@ using namespace std;
 #include <SDL.h>
 
 #include "Camera.hpp"
+#include "Character.hpp"
 #include "Scene.hpp"
 #include "Types.hpp"
 
@@ -19,7 +20,9 @@ public:
 	bool closeWindow();
 	bool createWindow(const char* title, const RenderConfig* renderConfig);
 	bool init();
-	void render(const Scene& scene, const Camera& camera);
+	void render(const Scene& scene, 
+	            const Character& player, 
+	            const Camera& camera);
 	void updateFps(float fps);
 
 	int getHeight() const {

@@ -1,5 +1,9 @@
 #include "Physics.hpp"
 
+#include "Camera.hpp"
+#include "Character.hpp"
+#include "Scene.hpp"
+
 Physics::Physics()
 {
 	// intentionally empty
@@ -13,27 +17,29 @@ Physics::~Physics()
 
 void
 Physics::step(Scene& scene, 
+              Character& player,
               Camera& camera, 
               const Input& input, 
               uint32_t lastFrameTime)
 {
-	float camSpeed = 640.0f; // pixels per second
-	float camDifX = (camSpeed * lastFrameTime) / 1000;
-	float camDifY = (camSpeed * lastFrameTime) / 1000;
+	float v = 640.0f; // pixels per second
+	float vReal = v * lastFrameTime / 1000.0f;
+	FPair delta(vReal, vReal);
 		
 	if (input.left && !input.right) {
-		camDifX *= -1;
+		delta.x *= -1;
 	}
 	else if (!input.left && !input.right) {
-		camDifX = 0;
+		delta.x = 0;
 	}
 
 	if (input.down && !input.up) {
-		camDifY *= -1;
+		delta.y *= -1;
 	}
 	else if (!input.down && !input.up) {
-		camDifY = 0;
+		delta.y = 0;
 	}
 
-	camera.shiftPosition(camDifX, camDifY, scene.getWorldBounds());
+	player.shiftPosition(delta, scene.getWorldBounds());
+	camera.centerOnCharacter(player, scene.getWorldBounds());
 }

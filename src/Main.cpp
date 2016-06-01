@@ -7,6 +7,7 @@ using namespace std;
 #include <SDL.h>
 
 #include "Camera.hpp"
+#include "Character.hpp"
 #include "FrameTimer.hpp"
 #include "Log.hpp"
 #include "Physics.hpp"
@@ -47,8 +48,11 @@ int main(int argc, char* argv[])
 	// Create a window
 	renderer.createWindow("platformer", renderConfig);
 
-	// Create a camera (TODO: move to scene loading)
+	// Create a camera (TODO: move to scene loading?)
 	Camera camera(0, 0, renderer.getWidth(), renderer.getHeight());
+
+	// Create a player (TODO: move to scene loading?)
+	Character player(0, 0, PS_SCALE, PS_SCALE);
 
 	// TODO: load scene
 	for (int i = 1; i < 16; ++i) {
@@ -73,10 +77,10 @@ int main(int argc, char* argv[])
 		pollInput(input, run);
 
 		// Physics 
-		physics.step(scene, camera, input, frameTimer.getLastFrameTime());
+		physics.step(scene, player, camera, input, frameTimer.getLastFrameTime());
 
         // Render
-        renderer.render(scene, camera);
+        renderer.render(scene, player, camera);
 
 		// Update FPS
         frameTimer.tick();

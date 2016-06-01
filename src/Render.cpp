@@ -9,6 +9,7 @@ using namespace std;
 #include <SDL_image.h>
 
 #include "Camera.hpp"
+#include "Character.hpp"
 #include "Log.hpp"
 #include "Platform.hpp"
 #include "Scene.hpp"
@@ -153,7 +154,7 @@ Render::init()
 }
 
 void
-Render::render(const Scene& scene, const Camera& camera)
+Render::render(const Scene& scene, const Character& player, const Camera& camera)
 {
 	SDL_Rect intersectRect;
 	SDL_Rect worldRect;
@@ -188,7 +189,7 @@ Render::render(const Scene& scene, const Camera& camera)
 	SDL_RenderFillRect(renderer, &intersectRect);
 
 	// Draw all platforms
-	SDL_SetRenderDrawColor(renderer, 0x7d, 0xc1, 0xf0, 0xFF);
+	SDL_SetRenderDrawColor(renderer, 0x7D, 0xC1, 0xF0, 0xFF);
 	for (Platform p : scene.getPlatforms()) {
 		worldRect = p.getRect();
 		blockToWorld(worldRect);
@@ -200,6 +201,14 @@ Render::render(const Scene& scene, const Camera& camera)
 			SDL_RenderFillRect(renderer, &intersectRect);
 		}
 	}
+
+	// Draw player
+	SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
+	worldRect = player.getRect();
+	SDL_IntersectRect(&worldRect, &camera.getRect(), &intersectRect);
+ 	camShift(intersectRect);
+	worldToSDL(intersectRect);
+	SDL_RenderFillRect(renderer, &intersectRect);
 
 	SDL_RenderPresent(renderer);
 }

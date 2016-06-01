@@ -6,6 +6,9 @@ using namespace std;
 
 #include <SDL.h>
 
+#include "Character.hpp"
+#include "Types.hpp"
+
 Camera::Camera(int x, int y, uint32_t width, uint32_t height)
 {
 	pos.x = x;
@@ -23,15 +26,20 @@ Camera::~Camera()
 }
 
 void
-Camera::centerOnPosition(float x, float y, const SDL_Rect& bounds)
+Camera::centerOnCharacter(const Character& character, const SDL_Rect& bounds)
 {
-	setPosition(x - static_cast<float>(rect.x) / 2, 
-	            y - static_cast<float>(rect.y) / 2,
-	            bounds);
+	// get the center of the character
+	FPair corner(character.getPos().x + character.getRect().w / 2,
+	             character.getPos().y + character.getRect().h / 2);
+		
+	corner.x -= rect.w / 2.0;
+	corner.y -= rect.h / 2.0;
+	
+	setPosition(corner, bounds);
 }
 
 void
-Camera::setPosition(float x, float y, const SDL_Rect& bounds)
+Camera::setPosition(const FPair& dest, const SDL_Rect& bounds)
 {
 	// set x-position
 	if (rect.w >= bounds.w) {
@@ -39,16 +47,16 @@ Camera::setPosition(float x, float y, const SDL_Rect& bounds)
 		pos.x = rect.x;
 	}
 	else {
-		if (x <= bounds.x) {
+		if (dest.x <= bounds.x) {
 			rect.x = bounds.x;
 			pos.x = rect.x;
 		}
-		else if (x + rect.w >= bounds.x + bounds.w) {
+		else if (dest.x + rect.w >= bounds.x + bounds.w) {
 			rect.x = bounds.x + bounds.w - rect.w;
 			pos.x = rect.x;
 		}
 		else {
-			pos.x = x;
+			pos.x = dest.x;
 			rect.x = round(pos.x);
 		}
 	}
@@ -59,23 +67,24 @@ Camera::setPosition(float x, float y, const SDL_Rect& bounds)
 		pos.y = rect.y;
 	}
 	else {
-		if (y <= bounds.y) {
+		if (dest.y <= bounds.y) {
 			rect.y = bounds.y;
 			pos.y = rect.y;
 		}
-		else if (y + rect.h >= bounds.y + bounds.h) {
+		else if (dest.y + rect.h >= bounds.y + bounds.h) {
 			rect.y = bounds.y + bounds.h - rect.h;
 			pos.y = rect.y;
 		}
 		else {
-			pos.y = y;
+			pos.y = dest.y;
 			rect.y = round(pos.y);
 		}
 	}
 }
 
 void 
-Camera::shiftPosition(float dx, float dy, const SDL_Rect& bounds)
+Camera::shiftPosition(const FPair& delta, const SDL_Rect& bounds)
 {
-	setPosition(pos.x + dx, pos.y + dy, bounds);
+	FPair corner(pos.x + delta.x, pos.y + delta.y);
+	setPosition(corner, bounds);
 }

@@ -8,8 +8,11 @@ typedef unsigned int uint32_t;
 typedef unsigned char uchar_t;
 
 struct FPair {
-	float x = 0.0f;
-	float y = 0.0f;
+	float x;
+	float y;
+
+	FPair() : x(0.0f), y(0.0f) {}
+	FPair(float x, float y) : x(x), y(y) {}
 };
 
 struct Input {
