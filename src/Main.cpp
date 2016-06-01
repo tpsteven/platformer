@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
 	// TODO: read list of levels from lvl/lvl.index, allow user to make selection
 
 	bool run = true;
+	float lastLoggedTime = 0.0f;    // in seconds
 	FrameTimer frameTimer(renderConfig->frame_timer_window);
 	Input input;
 	Render renderer(PS_SCALE);
@@ -79,8 +80,9 @@ int main(int argc, char* argv[])
 
 		// Update FPS
         frameTimer.tick();
-		if (renderConfig->show_fps && frameTimer.getFrameCount() % 100 == 0) {
+		if (renderConfig->show_fps && frameTimer.getTime() - lastLoggedTime > 0.5) {
 			renderer.updateFps(frameTimer.getFps());
+			lastLoggedTime = frameTimer.getTime();
 		}
 	}
 

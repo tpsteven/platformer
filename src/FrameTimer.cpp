@@ -1,6 +1,7 @@
 #include "FrameTimer.hpp"
 
 #include <cassert>
+#include <iostream>
 using namespace std;
 
 #include <SDL.h>
@@ -55,13 +56,23 @@ FrameTimer::tick()
 	currFrame = SDL_GetTicks();
 	frameDeltas.push(currFrame - lastFrame);
 	frameDeltaTotal += currFrame - lastFrame;
-	lastFrame= currFrame;
 
+	lastFrame = currFrame;
+	
 	if (frameDeltas.size() > windowSize) {
 		frameDeltaTotal -= frameDeltas.front();
 		frameDeltas.pop();
 	}
 	
-	fps = 1000 * frameDeltas.size() / frameDeltaTotal;
+	if (frameDeltaTotal != 0) {
+		// Only update fps if there is data to show
+		fps = 1000 * (static_cast<float>(frameDeltas.size()) / frameDeltaTotal);
+	}
+	else if (frameDeltas.size() == windowSize) {
+		// Since window size isn't enough to capture frame rate info, double
+		windowSize <<= 1;
+		cout << "Doubled window size to " << windowSize 
+			 << " to capture high frame rates " << endl;
+	}
 }
 
