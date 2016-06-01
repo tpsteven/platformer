@@ -1,1 +1,7 @@
 Remove stuttering by enabling double-buffering?
+
+In each level config, specify the artBlock height and min/max values for scaling
+to worldBlock heights. Ideally, the level should fit entirely within the window.
+Is this really important though? Just set the artBlock height to 16, plan for the
+entire level to fit in a height of 720 (so if pixels are 32 high, can fit 22.5
+blocks. Or shrink the window?
