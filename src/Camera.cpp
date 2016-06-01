@@ -6,20 +6,28 @@ using namespace std;
 
 #include <SDL.h>
 
-Camera::Camera(uint32_t width, uint32_t height)
+Camera::Camera(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-	rect.x = 0;
-	rect.y = 0;
+	pos.x = x;
+	pos.y = y;
+	
+	rect.x = x;
+	rect.y = y;
 	rect.w = width;
 	rect.h = height;
-
-	pos.x = 0.0f;
-	pos.x = 0.0f;
 }
 
 Camera::~Camera()
 {
 	// intentionally empty
+}
+
+void
+Camera::centerOnPosition(float x, float y, const SDL_Rect& bounds)
+{
+	setPosition(x - static_cast<rect.x> << 2, 
+	            y - static_cast<rect.y> << 2,
+	            bounds);
 }
 
 void

@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 	renderer.createWindow("platformer", renderConfig);
 
 	// Create a camera (TODO: move to scene loading)
-	Camera camera(renderer.getWidth(), renderer.getHeight());
+	Camera camera(0, 0, renderer.getWidth(), renderer.getHeight());
 
 	// TODO: load scene
 	for (int i = 1; i < 16; ++i) {

@@ -7,8 +7,10 @@
 
 class Camera {
 public:
-	Camera(uint32_t width, uint32_t height);
+	Camera(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 	~Camera();
+
+	void centerOnPosition(float x, float y, const SDL_Rect& bounds);
 
 	// negative numbers allowed for centering Camera around small Scenes
 	void setPosition(float x, float y, const SDL_Rect& bounds);
