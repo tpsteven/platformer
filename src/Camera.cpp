@@ -6,7 +6,7 @@ using namespace std;
 
 #include <SDL.h>
 
-Camera::Camera(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+Camera::Camera(int x, int y, uint32_t width, uint32_t height)
 {
 	pos.x = x;
 	pos.y = y;
@@ -25,8 +25,8 @@ Camera::~Camera()
 void
 Camera::centerOnPosition(float x, float y, const SDL_Rect& bounds)
 {
-	setPosition(x - static_cast<rect.x> << 2, 
-	            y - static_cast<rect.y> << 2,
+	setPosition(x - static_cast<float>(rect.x) / 2, 
+	            y - static_cast<float>(rect.y) / 2,
 	            bounds);
 }
 
@@ -75,7 +75,7 @@ Camera::setPosition(float x, float y, const SDL_Rect& bounds)
 }
 
 void 
-Camera::shiftPosition(float x, float y, const SDL_Rect& bounds)
+Camera::shiftPosition(float dx, float dy, const SDL_Rect& bounds)
 {
-	setPosition(pos.x + x, pos.y + y, bounds);
+	setPosition(pos.x + dx, pos.y + dy, bounds);
 }
