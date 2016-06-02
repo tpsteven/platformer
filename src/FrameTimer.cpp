@@ -53,12 +53,13 @@ FrameTimer::tick()
 	assert(ticking);
 	++frameCount;
 	
+	// Update the frame delta and push onto the queue
 	currFrame = SDL_GetTicks();
 	frameDeltas.push(currFrame - lastFrame);
 	frameDeltaTotal += currFrame - lastFrame;
-
 	lastFrame = currFrame;
 	
+	// If queue contains more times than the window size, remove the front
 	if (frameDeltas.size() > windowSize) {
 		frameDeltaTotal -= frameDeltas.front();
 		frameDeltas.pop();
@@ -70,9 +71,10 @@ FrameTimer::tick()
 	}
 	else if (frameDeltas.size() == windowSize) {
 		// Since window size isn't enough to capture frame rate info, double
+		// This avoids issues at high frame rates when the game runs so fast that
+		//   frame times appear to be 0.
 		windowSize <<= 1;
 		cout << "Doubled window size to " << windowSize 
 			 << " to capture high frame rates " << endl;
 	}
 }
-

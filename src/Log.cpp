@@ -31,4 +31,3 @@ Log::warning(const char* function, stringstream& message)
 	message.str("");
 	message.clear();
 }
-

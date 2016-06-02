@@ -15,74 +15,62 @@ using namespace std;
 #include "Scene.hpp"
 #include "Types.hpp"
 
+// Helper functions
 void loadArgs(int argc, char* argv[], RenderConfig* renderConfig);
 RenderConfig* loadRenderConfig();
 void pollInput(Input& input, bool& run);
 
+// Global const values
+const uint32_t BLOCK_SIZE = 40;  // size of block in world coordinates (pixels)
+
 int main(int argc, char* argv[])
 {
-	// Const values
-	const uint32_t PS_SCALE = 40;  // screen-pixel to sprite-pixel scale
-
 	// Load RenderConfig from file
 	RenderConfig* renderConfig = loadRenderConfig();
 
-	// Get command-line arguments
+	// Get command-line arguments and apply to renderConfig
 	loadArgs(argc, argv, renderConfig);
 
-	// TODO: read list of levels from lvl/lvl.index, allow user to make selection
-
+	// Declare and define variables for game loop
 	bool run = true;
 	float lastLoggedTime = 0.0f;    // in seconds
 	FrameTimer frameTimer(renderConfig->frame_timer_window);
-	Input input;
-	Render renderer(PS_SCALE);
+	Input input;                    // see Types.hpp for definition
+	Render renderer(BLOCK_SIZE);
 	Physics physics;
-	Scene scene(PS_SCALE);
+	Scene scene(BLOCK_SIZE);        // default constructor initializes
+									//   a default scene
 
 	// Initialize the renderer (including SDL and required libraries)
 	if (!renderer.init()) {
+		// If fails, terminate the program
 		return -1;
 	}
 
-	// Create a window
+	// Create a window and set renderer width/height (later passed to Camera)
 	renderer.createWindow("platformer", renderConfig);
 
-	// Create a camera (TODO: move to scene loading?)
+	// Create a camera 
 	Camera camera(0, 0, renderer.getWidth(), renderer.getHeight());
 
-	// Create a player (TODO: move to scene loading?)
-	Character player(0, 0, PS_SCALE, PS_SCALE);
+	// Create a player
+	Character player(0, 0, BLOCK_SIZE);
 
-	// TODO: load scene
-	for (int i = 1; i < 16; ++i) {
-		scene.addPlatform(i * 4, (i - 1) * 2, 3, 1);
-	}
-	
-	scene.setBounds(0, 0, 64, 36);
-	
-/*
-	scene.addPlatform(0, 0, 1, 1);
-	scene.addPlatform(0, 17, 1, 1);
-	scene.addPlatform(63, 0, 1, 1);
-	scene.addPlatform(63, 17, 1, 1);
-	scene.setBounds(0, 0, 64, 18);
-*/
-
+	// Start frameTimer (so Physics can get frame times)
 	frameTimer.start();
 
 	// Game loop
 	while (run) {
-		// Input
+		// Get input, change run to false if necessary
 		pollInput(input, run);
 
-		// Physics 
+		// Apply input to player, move player and check for collisions, move camera
 		physics.step(scene, player, camera, input, frameTimer.getLastFrameTime());
 
-        // Render
+        // Draw the environment and player to the window
         renderer.render(scene, player, camera);
 
-		// Update FPS
+		// Update the FPS display every 0.5 seconds, if enabled in renderConfig
         frameTimer.tick();
 		if (renderConfig->show_fps && frameTimer.getTime() - lastLoggedTime > 0.5) {
 			renderer.updateFps(frameTimer.getFps());
@@ -90,7 +78,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// Clean up
+	// Clean up pointers
 	if (renderConfig != nullptr) {
 		delete renderConfig;
 	}
@@ -98,6 +86,9 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+/**
+ * Get command-line arguments and override current renderConfig settings.
+ */
 void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
 {
 	stringstream error;
@@ -138,6 +129,9 @@ void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
 	}
 }
 
+/**
+ * Load RenderConfig from a file (RenderConfig defined in Types.hpp)
+ */
 RenderConfig* loadRenderConfig()
 {
 	RenderConfig* r = new RenderConfig();
@@ -192,6 +186,10 @@ RenderConfig* loadRenderConfig()
 	return r;
 }
 
+/**
+ * Get keyboard/mouse input using SDL and apply to the Input struct (defined
+ * in Types.hpp)
+ */
 void pollInput(Input& input, bool& run)
 {
 	SDL_Event e;
