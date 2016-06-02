@@ -60,7 +60,6 @@ Physics::step(Scene& scene,
 		stepAddedLastFrame = true;
 	}
 	else if (stepAddedLastFrame) {
-		cout << "Frame time: " << lastFrameTime << endl;
 		stepAddedLastFrame = false;
 	}
 	
