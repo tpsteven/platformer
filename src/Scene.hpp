@@ -10,18 +10,44 @@ using namespace std;
 
 class Scene {
 public:
-	Scene(uint32_t bwScale);
+	////////////////////////////////////////////////////////////////////////////
+	// Constructors/Destructor (defined in Scene.cpp)
+	////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Create a default scene with the specified blockSize
+	 */
+	Scene(uint32_t blockSize);
+	
+	/**
+	 * Clean up any memory allocations made by the Scene
+	 */
 	~Scene();
 	
-	void load(string sceneName);
-	void reset();
-	void resetCurrent();
-
-	// platform coordinates in block-coordinates	
-	void addPlatform(uint32_t x, uint32_t y, uint32_t w, uint32_t h);
+	////////////////////////////////////////////////////////////////////////////
+	// Public mutator functions (defined in Scene.cpp)
+	////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Adds a new platform to the scene, increasing the horizontal bounds as
+	 * necessary to the right
+	 * 
+	 * The platform must not have negative coordinates.
+	 */
 	void addPlatform(const SDL_Rect& rect);
+	
+	void addRandomPlatform(int width);
+	
+	/**
+	 * Release the current resources and load a new scene.
+	 */
+	void load(string sceneName);
+	
+	/**
+	 * Reset the player position, enemy positions, etc.
+	 */
+	void reset();
 
-	void setBounds(uint32_t x, uint32_t y, uint32_t w, uint32_t h);
 	void setBounds(const SDL_Rect& rect);
 
 	const list<Platform>& getPlatforms() const {
@@ -31,17 +57,23 @@ public:
 	const SDL_Rect& getBounds() const {
 		return bounds;
 	}
-
-	const SDL_Rect& getWorldBounds() const {
-		return worldBounds;
-	}
 	
 private:
+	/**
+	 * Adds a new platform to the scene, increasing bounds as needed in either
+	 * direction
+	 * 
+	 * The platform must not have negative coordinates.
+	 */
+	bool addPlatform(const SDL_Rect& rect, bool allowVerticalExpansion);
+
+	bool expandBounds(const SDL_Rect& rect, bool allowVerticalExpansion);
+
 	list<Platform> platforms;
 	SDL_Rect bounds;
-	SDL_Rect worldBounds;
+	SDL_Rect blockBounds;
 	string currentName;
-	uint32_t bwScale;
+	uint32_t blockSize;
 	
 	// doubly-linked list of Chunk nodes (deallocate when death laser passes)
 };
