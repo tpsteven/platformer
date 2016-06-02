@@ -15,11 +15,12 @@ using namespace std;
 #include "Scene.hpp"
 #include "Types.hpp"
 
-Render::Render(uint32_t bwScale)
-	: bwScale(bwScale)
+Render::Render(uint32_t blockSize)
+	: renderer(nullptr), window(nullptr), blockSize(blockSize)
 {
-	// intentionally empty
-	// initialization occurs in Render::init()
+	// Intentionally empty, because initialization occurs in Render::init()
+	// It's there because it could fail, and throwing an exception in a 
+	//   constructor isn't great style.
 }
 
 Render::~Render()
@@ -54,7 +55,7 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 
 	if (renderConfig->fullscreen) {
 		windowFlags |= SDL_WINDOW_FULLSCREEN;
-		windowed = false;
+		fullscreen = true;
 		
 		SDL_DisplayMode displayMode;
 		if (SDL_GetDesktopDisplayMode(0, &displayMode) != 0) {
@@ -66,7 +67,7 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 		height = displayMode.h;
 	}
 	else {
-		windowed = true;
+		fullscreen = false;
 		width = renderConfig->window_width;
 		height = renderConfig->window_height;
 	}
@@ -88,7 +89,7 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 	uint32_t rendererFlags = SDL_RENDERER_SOFTWARE;
 
 	if (renderConfig->hardware_accelerated) {
-		rendererFlags = SDL_RENDERER_ACCELERATED;
+		rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 	}
 
 	renderer = SDL_CreateRenderer(window, -1, rendererFlags);
@@ -156,48 +157,31 @@ Render::init()
 void
 Render::render(const Scene& scene, const Character& player, const Camera& camera)
 {
-	SDL_Rect intersectRect;
-	SDL_Rect worldRect;
-
-	auto blockToWorld = [&] (SDL_Rect& rect) {
-		rect.x *= bwScale;
-		rect.y *= bwScale;
-		rect.w *= bwScale;
-		rect.h *= bwScale;
-	};
-
-	auto camShift = [&] (SDL_Rect& rect) {
-		rect.x -= camera.getRect().x;
-		rect.y -= camera.getRect().y;
-	};
-
-	auto worldToSDL = [&] (SDL_Rect& rect) {
-		rect.y = height - (rect.y + rect.h);
-	};
+	SDL_Rect intersectRect; // for checking the intersection between an object
+	                        //   and the camera
+	SDL_Rect worldRect;     // cached object rect (to avoid calling getRect())
 
 	// Clear screen
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	SDL_RenderClear(renderer);
-
+	
+	// Check where scene intersects the camera/window
+	worldRect = scene.getBounds();
+	SDL_IntersectRect(&worldRect, &camera.getRect(), &intersectRect);
+	worldToSDL(intersectRect, camera.getRect());
+	
 	// Draw level background
 	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-	worldRect = scene.getBounds();
-	blockToWorld(worldRect);
-	SDL_IntersectRect(&worldRect, &camera.getRect(), &intersectRect);
-	camShift(intersectRect);
-	worldToSDL(intersectRect);
 	SDL_RenderFillRect(renderer, &intersectRect);
 
 	// Draw all platforms
 	SDL_SetRenderDrawColor(renderer, 0x7D, 0xC1, 0xF0, 0xFF);
 	for (Platform p : scene.getPlatforms()) {
 		worldRect = p.getRect();
-		blockToWorld(worldRect);
 
 		if (SDL_IntersectRect(&worldRect, &camera.getRect(), &intersectRect) ==
 		    SDL_TRUE) {
-			camShift(intersectRect);
-			worldToSDL(intersectRect);
+			worldToSDL(intersectRect, camera.getRect());
 			SDL_RenderFillRect(renderer, &intersectRect);
 		}
 	}
@@ -206,25 +190,25 @@ Render::render(const Scene& scene, const Character& player, const Camera& camera
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
 	worldRect = player.getRect();
 	SDL_IntersectRect(&worldRect, &camera.getRect(), &intersectRect);
- 	camShift(intersectRect);
-	worldToSDL(intersectRect);
+ 	worldToSDL(intersectRect, camera.getRect());
 	SDL_RenderFillRect(renderer, &intersectRect);
 
+	// Push update to the window
 	SDL_RenderPresent(renderer);
 }
 
 void
 Render::updateFps(float fps)
 {
-	if (windowed) {
+	if (fullscreen) {
+		cout << fps << " fps" << endl;
+	}
+	else {
 		titleStream.str("");
 		titleStream.clear();
 			
 		titleStream << title << " (" << fps << " fps)";
 		SDL_SetWindowTitle(window, titleStream.str().c_str());
-	}
-	else {
-		cout << fps << " fps" << endl;
 	}
 }
 
@@ -257,3 +241,14 @@ Render::loadTexture(const char* path, SDL_Renderer* renderer)
 	return newTexture;
 }
 
+void
+Render::worldToSDL(SDL_Rect& rect, const SDL_Rect& cameraRect)
+{
+	// Shift the rect so its relative window position matches the Camera's
+	rect.x -= cameraRect.x;
+	rect.y -= cameraRect.y;
+	
+	// Transform the rect from window to SDL coordinates
+	// (0,0) is bottom left in window, top left in SDL
+	rect.y = height - (rect.y + rect.h);
+}
