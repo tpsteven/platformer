@@ -18,10 +18,10 @@ using namespace std;
 // Helper functions
 void loadArgs(int argc, char* argv[], RenderConfig* renderConfig);
 RenderConfig* loadRenderConfig();
-void pollInput(Input& input, bool& run);
+void pollKeyboardInput(Input& input, bool& run);
 
 // Global const values
-const uint32_t BLOCK_SIZE = 40;  // size of block in world coordinates (pixels)
+const uint32_t BLOCK_SIZE = 20;  // size of block in world coordinates (pixels)
 
 int main(int argc, char* argv[])
 {
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 	// Game loop
 	while (run) {
 		// Get input, change run to false if necessary
-		pollInput(input, run);
+		pollKeyboardInput(input, run);
 
 		// Apply input to player, move player and check for collisions, move camera
 		physics.step(scene, player, camera, input, frameTimer.getLastFrameTime());
@@ -190,7 +190,7 @@ RenderConfig* loadRenderConfig()
  * Get keyboard/mouse input using SDL and apply to the Input struct (defined
  * in Types.hpp)
  */
-void pollInput(Input& input, bool& run)
+void pollKeyboardInput(Input& input, bool& run)
 {
 	SDL_Event e;
 
