@@ -42,9 +42,9 @@ Physics::step(Scene& scene,
 			// TODO: look at horizontal and vertical velocities, determine 
 			//   whether player would hit side or top/bottom first
 			
-			// TODO: fix case where player holds down and moves across bump
-			// in two connected platforms (or just avoid two connected platforms
-			// in the first place)
+			// TODO: fix case where player holds down and moves across two
+			// connected platforms (or just avoid two connected platforms in the
+			// first place)
 			if (intersection.w < intersection.h) {
 				if (oldPosition.x < player.getPos().x) {
 					newPosition.x = p.getRect().x - player.getRect().w;
