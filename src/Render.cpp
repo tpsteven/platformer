@@ -87,7 +87,7 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 	uint32_t rendererFlags = SDL_RENDERER_SOFTWARE;
 
 	if (renderConfig->hardware_accelerated) {
-		rendererFlags |= SDL_RENDERER_ACCELERATED;
+		rendererFlags = SDL_RENDERER_ACCELERATED;
 	}
 
 	renderer = SDL_CreateRenderer(window, -1, rendererFlags);

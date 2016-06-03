@@ -121,6 +121,9 @@ void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
 			else if (k.compare("show_fps") == 0) {
 				renderConfig->show_fps = v.compare("true") == 0;
 			}
+			else if (k.compare("hardware_accelerated") == 0) {
+				renderConfig->hardware_accelerated = v.compare("true") == 0;
+			}
 			else {
 				error << "Unknown arg (key-value pair): " << arg;
 				Log::warning("Main::loadArgs()", error);
