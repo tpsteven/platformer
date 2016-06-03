@@ -1,5 +1,6 @@
 #include "Camera.hpp"
 
+#include <cmath>
 #include <iostream>
 using namespace std;
 
@@ -11,6 +12,9 @@ Camera::Camera(uint32_t width, uint32_t height)
 	rect.y = 0;
 	rect.w = width;
 	rect.h = height;
+
+	pos.x = 0.0f;
+	pos.x = 0.0f;
 }
 
 Camera::~Camera()
@@ -19,46 +23,51 @@ Camera::~Camera()
 }
 
 void
-Camera::setPosition(int x, int y, const SDL_Rect& bounds)
+Camera::setPosition(float x, float y, const SDL_Rect& bounds)
 {
 	// set x-position
 	if (rect.w >= bounds.w) {
 		rect.x = bounds.x - (rect.w - bounds.w) / 2;
+		pos.x = rect.x;
 	}
 	else {
 		if (x <= bounds.x) {
 			rect.x = bounds.x;
+			pos.x = rect.x;
 		}
 		else if (x + rect.w >= bounds.x + bounds.w) {
 			rect.x = bounds.x + bounds.w - rect.w;
+			pos.x = rect.x;
 		}
 		else {
-			rect.x = x;
+			pos.x = x;
+			rect.x = round(pos.x);
 		}
 	}
 
 	// set y-position
 	if (rect.h >= bounds.h) {
 		rect.y = bounds.y - (rect.h - bounds.h) / 2;
+		pos.y = rect.y;
 	}
 	else {
 		if (y <= bounds.y) {
 			rect.y = bounds.y;
+			pos.y = rect.y;
 		}
 		else if (y + rect.h >= bounds.y + bounds.h) {
 			rect.y = bounds.y + bounds.h - rect.h;
+			pos.y = rect.y;
 		}
 		else {
-			rect.y = y;
+			pos.y = y;
+			rect.y = round(pos.y);
 		}
 	}
 }
 
 void 
-Camera::shiftPosition(int x, int y, const SDL_Rect& bounds)
+Camera::shiftPosition(float x, float y, const SDL_Rect& bounds)
 {
-	// rect.x = (rect.x + x < 0) ? 0 : rect.x + x;
-	// rect.y = (rect.y + y < 0) ? 0 : rect.y + y;
-
-	setPosition(rect.x + x, rect.y + y, bounds);
+	setPosition(pos.x + x, pos.y + y, bounds);
 }

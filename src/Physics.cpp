@@ -17,9 +17,9 @@ Physics::step(Scene& scene,
               const Input& input, 
               uint32_t lastFrameTime)
 {
-	int camSpeed = 640; // pixels per second
-	int camDifX = (camSpeed * lastFrameTime) / 1000;
-	int camDifY = (camSpeed * lastFrameTime) / 1000;
+	float camSpeed = 640.0f; // pixels per second
+	float camDifX = (camSpeed * lastFrameTime) / 1000;
+	float camDifY = (camSpeed * lastFrameTime) / 1000;
 		
 	if (input.left && !input.right) {
 		camDifX *= -1;

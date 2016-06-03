@@ -7,6 +7,11 @@ using namespace std;
 typedef unsigned int uint32_t;
 typedef unsigned char uchar_t;
 
+struct FPair {
+	float x = 0.0f;
+	float y = 0.0f;
+};
+
 struct Input {
 	bool down  = false;
 	bool left  = false;

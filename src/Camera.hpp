@@ -10,17 +10,18 @@ public:
 	Camera(uint32_t width, uint32_t height);
 	~Camera();
 
-	// negative numbers allowed for centering Camera around small bounds
-	void setPosition(int x, int y, const SDL_Rect& bounds);
+	// negative numbers allowed for centering Camera around small Scenes
+	void setPosition(float x, float y, const SDL_Rect& bounds);
 
-	void shiftPosition(int x, int y, const SDL_Rect& bounds);
+	void shiftPosition(float x, float y, const SDL_Rect& bounds);
 
 	const SDL_Rect& getRect() const {
 		return rect;
 	}
 	
 private:
-	SDL_Rect rect;  // dimensions and position in pixel coordinates
+	FPair    pos;   // true position (world coordinates)
+	SDL_Rect rect;  // dimensions and display position (world coordinates)
 };
 
 #endif
