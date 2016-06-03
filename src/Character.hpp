@@ -3,10 +3,13 @@
 
 #include <SDL.h>
 
+#include "Physics.hpp"
 #include "Types.hpp"
 
 class Character {
 public:
+	friend class Physics;
+
 	////////////////////////////////////////////////////////////////////////////
 	// Constructors/Destructor (defined in Character.cpp)
 	////////////////////////////////////////////////////////////////////////////
@@ -57,8 +60,14 @@ public:
 	}
 
 private:
-	FPair    pos;   // true position (world coordinates)
-	SDL_Rect rect;  // dimensions and display position (world coordinates)
+	// All positions in world coordinates
+	FPair    lastPos;
+	FPair    pos;
+	SDL_Rect rect;
+	
+	// Velocity and acceleration in world coordinates
+	FPair vel;
+	FPair acc;
 };
 
 #endif

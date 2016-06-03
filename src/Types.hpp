@@ -4,8 +4,32 @@
 #include <string>
 using namespace std;
 
+// Forward declarations
+class Camera;
+class Character;
+class FrameTimer;
+class Input;
+class Physics;
+class Render;
+
 typedef unsigned int uint32_t;
 typedef unsigned char uchar_t;
+
+enum class Button {
+	A, B, X, Y, Down, Left, Up, Right
+};
+
+enum class ButtonState {
+	Pressed, Released
+};
+
+struct ButtonEvent {
+	Button      button;
+	ButtonState state;
+	
+	ButtonEvent(const Button& b, const ButtonState& s) : button(b), state(s) {}
+	ButtonEvent(const ButtonEvent& e) : button(e.button), state(e.state) {}
+};
 
 /**
  * A simple struct that stores an (x, y) position
@@ -16,24 +40,6 @@ struct FPair {
 
 	FPair() : x(0.0f), y(0.0f) {}
 	FPair(float x, float y) : x(x), y(y) {}
-};
-
-/**
- * A struct that contains all the input flags.
- * 
- * Values are updated in pollInput in the main loop, and the physics system uses
- * them to move the player character.
- */
-struct Input {
-	bool down  = false;
-	bool left  = false;
-	bool right = false;
-	bool up    = false;
-
-	bool a     = false;
-	bool b     = false;
-	bool x     = false;
-	bool y     = false;
 };
 
 /**
