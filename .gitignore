@@ -1,3 +1,8 @@
+# Backup Vim Files
+*.cpp~
+*.hpp~
+*~
+
 # Compiled Object files
 *.slo
 *.lo
