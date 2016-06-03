@@ -49,7 +49,7 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 	this->title = title;
 
 	// Create window
-	uint32_t windowFlags = SDL_WINDOW_INPUT_GRABBED;
+	uint32_t windowFlags = 0;
 
 	if (renderConfig->fullscreen) {
 		windowFlags |= SDL_WINDOW_FULLSCREEN;
