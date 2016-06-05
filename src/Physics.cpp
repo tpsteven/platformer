@@ -34,7 +34,78 @@ Physics::step(Scene& scene,
 	
 	// Move the player based on the input
 	parseInput(scene, player, input, lastFrameTime);
-	
+
+/*
+To anyone else that reads this, I feel like I owe a bit of explanation. 
+Apparently, with the current collision code, you have to iterate through
+the platforms in the direction of travel in order to safely resolve collisions
+from two adjacent platforms. So I set the direction of iteration to match
+the player's direction of movement to fix this problem. It's a horrible solution
+and I'm ashamed, since I should really just iterate through them in one direction
+and sum the collision changes at the end like an actual good person. But I have
+no conscience, and so it will remain for now.
+
+Quick note to future Tyler: always iterate from right to left, since you'll be
+able to terminate quicker? I guess it won't matter once we start discarding 
+platforms the player has passed. It's an option though.
+*/
+
+	// Check collisions
+	if (oldPosition.x > player.getPos().x) {
+		for (auto it = scene.getPlatforms().rbegin();
+		     it != scene.getPlatforms().rend();
+		     ++it) {
+		Platform p = *it;
+
+		if (SDL_IntersectRect(&p.getRect(), &player.getRect(), &intersection) ==
+		    SDL_TRUE) {
+			// TODO: look at horizontal and vertical velocities, determine 
+			//   whether player would hit side or top/bottom first
+			
+			// TODO: fix case where player holds down and moves across two
+			// connected platforms (or just avoid two connected platforms in the
+			// first place)
+			if (intersection.w < intersection.h) {
+				if (oldPosition.x < player.getPos().x) {
+					newPosition.x = p.getRect().x - player.getRect().w;
+				}
+				else {
+					newPosition.x = p.getRect().x + p.getRect().w;
+				}
+				
+				newPosition.y = player.getPos().y;
+			}
+			else if (intersection.w > intersection.h) {
+				if (oldPosition.y < player.getPos().y) {
+					newPosition.y = p.getRect().y - player.getRect().h;
+				}
+				else {
+					newPosition.y = p.getRect().y + p.getRect().h;
+				}
+				
+				newPosition.x = player.getPos().x;
+			}
+			else {
+				if (player.getRect().x == intersection.x) {
+					newPosition.x = player.getPos().x + intersection.w;
+				}
+				else {
+					newPosition.x = player.getPos().x - intersection.w;
+				}
+				
+				if (player.getRect().y == intersection.y) {
+					newPosition.y = player.getPos().y + intersection.h;
+				}
+				else {
+					newPosition.y = player.getPos().y - intersection.h;
+				}
+			}
+			
+			player.setPosition(newPosition, scene.getBounds());
+		}
+	}
+		}
+	else {
 	// Check collisions
 	for (Platform p : scene.getPlatforms()) {
 		if (SDL_IntersectRect(&p.getRect(), &player.getRect(), &intersection) ==
@@ -83,6 +154,7 @@ Physics::step(Scene& scene,
 			
 			player.setPosition(newPosition, scene.getBounds());
 		}
+	}
 	}
 	
 	// Add more platforms as player gets close to the edge
