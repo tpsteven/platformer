@@ -10,6 +10,9 @@ FILES = src/*.cpp
 linux:
 	g++ -std=c++11 -Wall $(FILES) -o platformer $(SDL2_LINUX)
 
+rpi:
+	g++ -DRPI -std=c++11 -Wall $(FILES) -o platformer $(SDL2_LINUX)
+	
 windows:
 	g++ $(FILES) $(WIN_INC) $(WIN_LIB) -std=c++11 -Wall $(WIN_FLAGS) -o win\platformer
 

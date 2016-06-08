@@ -21,6 +21,7 @@ using namespace std;
 #include "Camera.hpp"
 #include "Character.hpp"
 #include "FrameTimer.hpp"
+#include "Input.hpp"
 #include "Log.hpp"
 #include "Physics.hpp"
 #include "Render.hpp"
@@ -30,10 +31,10 @@ using namespace std;
 // Helper functions
 void loadArgs(int argc, char* argv[], RenderConfig* renderConfig);
 RenderConfig* loadRenderConfig();
-void pollInput(Input& input, bool& run);
+void pollKeyboardInput(Input& input, bool& run);
 
 // Global const values
-const uint32_t BLOCK_SIZE = 40;  // size of block in world coordinates (pixels)
+const uint32_t BLOCK_SIZE = 20;  // size of block in world coordinates (pixels)
 
 int main(int argc, char* argv[])
 {
@@ -47,7 +48,7 @@ int main(int argc, char* argv[])
 	bool run = true;
 	float lastLoggedTime = 0.0f;    // in seconds
 	FrameTimer frameTimer(renderConfig->frame_timer_window);
-	Input input;                    // see Types.hpp for definition
+	Input input;
 	Render renderer(BLOCK_SIZE);
 	Physics physics;
 	Scene scene(BLOCK_SIZE);        // default constructor initializes
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
 	// Game loop
 	while (run) {
 		// Get input, change run to false if necessary
-		pollInput(input, run);
+		pollKeyboardInput(input, run);
 
 //////////////// Yuji /////////////////////
 	#ifdef RPI
@@ -216,7 +217,7 @@ RenderConfig* loadRenderConfig()
  * Get keyboard/mouse input using SDL and apply to the Input struct (defined
  * in Types.hpp)
  */
-void pollInput(Input& input, bool& run)
+void pollKeyboardInput(Input& input, bool& run)
 {
 	SDL_Event e;
 
@@ -233,21 +234,29 @@ void pollInput(Input& input, bool& run)
 						break;
 						
 					case SDLK_DOWN:
-						input.down = true;
+						input.pushEvent(Button::Down, ButtonState::Pressed);
 						break;
 						
 					case SDLK_LEFT:
-						input.left = true;
+						input.pushEvent(Button::Left, ButtonState::Pressed);
+						break;
+						
+					case SDLK_LSHIFT:
+						input.pushEvent(Button::B, ButtonState::Pressed);
 						break;
 						
 					case SDLK_RIGHT:
-						input.right = true;
+						input.pushEvent(Button::Right, ButtonState::Pressed);
+						break;
+			
+					case SDLK_SPACE:
+						input.pushEvent(Button::A, ButtonState::Pressed);
 						break;
 			
 					case SDLK_UP:
-						input.up = true;
+						input.pushEvent(Button::Up, ButtonState::Pressed);
 						break;
-						
+					
 					default:
 						break;
 				}
@@ -257,19 +266,27 @@ void pollInput(Input& input, bool& run)
 			case SDL_KEYUP:     // Check key releases
 				switch (e.key.keysym.sym) {
 					case SDLK_DOWN:
-						input.down = false;
+						input.pushEvent(Button::Down, ButtonState::Released);
 						break;
 						
 					case SDLK_LEFT:
-						input.left = false;
+						input.pushEvent(Button::Left, ButtonState::Released);
+						break;
+						
+					case SDLK_LSHIFT:
+						input.pushEvent(Button::B, ButtonState::Released);
 						break;
 						
 					case SDLK_RIGHT:
-						input.right = false;
+						input.pushEvent(Button::Right, ButtonState::Released);
 						break;
-						
+			
+					case SDLK_SPACE:
+						input.pushEvent(Button::A, ButtonState::Released);
+						break;
+			
 					case SDLK_UP:
-						input.up = false;
+						input.pushEvent(Button::Up, ButtonState::Released);
 						break;
 						
 					default:
