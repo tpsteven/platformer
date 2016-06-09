@@ -208,6 +208,10 @@ Physics::parseInput(const Scene& scene,
 		delta.y = 0;
 	}
 	
+	if (input.getAlt()) {
+		delta.x *= 0.2;
+	}
+	
 	// Move the player
 	return player.shiftPosition(delta, scene.getCollisionBounds());
 }

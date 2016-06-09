@@ -72,13 +72,14 @@ int main(int argc, char* argv[])
 	// Game loop
 	while (run) {
 		if (reset) {
-			input.reset();
 			scene.reset();
 			camera.centerOnCharacter(player, scene.getBounds());
 			player.setPosition({ (float) blockSize, (float) blockSize });
 			
 			renderer.render(scene, player, camera);
 			SDL_Delay(500);
+			pollKeyboardInput(input, reset);
+			input.reset();
 			reset = false;
 		}
 		
@@ -270,6 +271,10 @@ void pollKeyboardInput(Input& input, bool& run)
 						input.pushEvent(Button::Up, ButtonState::Pressed);
 						break;
 					
+					case SDLK_LALT:
+						input.pushEvent(Button::Alt, ButtonState::Pressed);
+						break;
+					
 					default:
 						break;
 				}
@@ -300,6 +305,10 @@ void pollKeyboardInput(Input& input, bool& run)
 			
 					case SDLK_UP:
 						input.pushEvent(Button::Up, ButtonState::Released);
+						break;
+						
+					case SDLK_LALT:
+						input.pushEvent(Button::Alt, ButtonState::Released);
 						break;
 						
 					default:

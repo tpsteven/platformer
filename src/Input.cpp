@@ -77,6 +77,10 @@ Input::pushEvent(const Button& button, const ButtonState& buttonState)
 		case Button::Y:
 			y = (buttonState == ButtonState::Pressed);
 			break;
+			
+		case Button::Alt:
+			alt = (buttonState == ButtonState::Pressed);
+			break;
 	}
 }
 
@@ -93,4 +97,6 @@ Input::reset()
 	up    = false;	
 	x     = false;
 	y     = false;
+	
+	alt   = false;
 }
