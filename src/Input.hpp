@@ -11,10 +11,11 @@ public:
 	Input();
 	~Input();
 	
-	void clear();
+	void clearEvents();
 	int  pollEvent(ButtonEvent& event);
 	void pushEvent(const ButtonEvent& event);
 	void pushEvent(const Button& button, const ButtonState& buttonState);
+	void reset();
 	
 	bool getA()     const { return a; }
 	bool getB()     const { return b; }

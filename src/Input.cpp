@@ -14,7 +14,7 @@ Input::~Input()
 }
 
 void
-Input::clear()
+Input::clearEvents()
 {
 	while (!events.empty()) {
 		events.pop();
@@ -78,4 +78,19 @@ Input::pushEvent(const Button& button, const ButtonState& buttonState)
 			y = (buttonState == ButtonState::Pressed);
 			break;
 	}
+}
+
+void
+Input::reset()
+{
+	clearEvents();
+	
+	a     = false;
+	b     = false;
+	down  = false;
+	left  = false;
+	right = false;
+	up    = false;	
+	x     = false;
+	y     = false;
 }

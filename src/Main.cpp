@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -17,80 +18,122 @@ using namespace std;
 #include "Types.hpp"
 
 // Helper functions
-void loadArgs(int argc, char* argv[], RenderConfig* renderConfig);
-RenderConfig* loadRenderConfig();
+bool calculateBlockSize(uint32_t& blockSize,
+                        uint32_t numBlocks, 
+                        uint32_t windowHeight);
+void loadRenderArgs(int argc, char* argv[], RenderConfig& renderConfig);
+void loadRenderConfig(RenderConfig& renderConfig);
 void pollKeyboardInput(Input& input, bool& run);
-
-// Global const values
-const uint32_t BLOCK_SIZE = 20;  // size of block in world coordinates (pixels)
 
 int main(int argc, char* argv[])
 {
-	// Load RenderConfig from file
-	RenderConfig* renderConfig = loadRenderConfig();
-
-	// Get command-line arguments and apply to renderConfig
-	loadArgs(argc, argv, renderConfig);
-
-	// Declare and define variables for game loop
-	bool run = true;
-	float lastLoggedTime = 0.0f;    // in seconds
-	FrameTimer frameTimer(renderConfig->frame_timer_window);
+	bool reset = false;
+	bool run = true;                // game loop stops when false
+	float lastLoggedTime = 0.0f;	// in seconds
+	uint32_t blockSize = 0;         // size of block in pixels on screen
+	
+	Camera camera;
+	Character player;
+	FrameTimer frameTimer;
 	Input input;
-	Render renderer(BLOCK_SIZE);
+	Render renderer;
+	RenderConfig renderConfig;
 	Physics physics;
-	Scene scene(BLOCK_SIZE);        // default constructor initializes
-									//   a default scene
-
+	Scene scene;
+	
+	// Load RenderConfig from file and apply command-line arguments
+	loadRenderConfig(renderConfig);
+	loadRenderArgs(argc, argv, renderConfig);
+	
 	// Initialize the renderer (including SDL and required libraries)
-	if (!renderer.init()) {
-		// If fails, terminate the program
-		return -1;
-	}
-
+	assert(renderer.init());
+	
 	// Create a window and set renderer width/height (later passed to Camera)
-	renderer.createWindow("platformer", renderConfig);
+	assert(renderer.createWindow("platformer", renderConfig));
+	cout << "Window: (" << renderer.getWidth() << "," << renderer.getHeight() << ")" << endl;
+	
+	// Calculate the block size, assuming the scene is 20 blocks high
+	assert(calculateBlockSize(blockSize, 20, renderer.getHeight()));
+	
+	// Initialize the camera 
+	assert(camera.init(renderer.getWidth(), renderer.getHeight()));
 
-	// Create a camera 
-	Camera camera(0, 0, renderer.getWidth(), renderer.getHeight());
+	// Initialize the player
+	assert(player.init(0, 0, blockSize));
 
-	// Create a player
-	Character player(0, 0, BLOCK_SIZE);
-
-	// Start frameTimer (so Physics can get frame times)
+	// Initialize the scene
+	scene.load(Scene::ARENA_DEFAULT, blockSize);
+	cout << "Scene size: (" << scene.getBounds().w << ", " << scene.getBounds().h << ")" << endl;
+	
+	// Initialize and start frameTimer (so Physics can get frame times)
+	assert(frameTimer.init(renderConfig.frame_timer_window));
 	frameTimer.start();
 
 	// Game loop
 	while (run) {
+		if (reset) {
+			input.reset();
+			scene.reset();
+			camera.centerOnCharacter(player, scene.getBounds());
+			player.setPosition({ (float) blockSize, (float) blockSize });
+			
+			renderer.render(scene, player, camera);
+			SDL_Delay(500);
+			reset = false;
+		}
+		
 		// Get input, change run to false if necessary
 		pollKeyboardInput(input, run);
 
 		// Apply input to player, move player and check for collisions, move camera
-		physics.step(scene, player, camera, input, frameTimer.getLastFrameTime());
+		if (!physics.step(scene, player, camera, input, frameTimer.getLastFrameTime())) {
+			reset = true;
+		}
 
         // Draw the environment and player to the window
         renderer.render(scene, player, camera);
-
+		
 		// Update the FPS display every 0.5 seconds, if enabled in renderConfig
         frameTimer.tick();
-		if (renderConfig->show_fps && frameTimer.getTime() - lastLoggedTime > 0.5) {
+		if (renderConfig.show_fps && frameTimer.getTime() - lastLoggedTime > 0.5) {
 			renderer.updateFps(frameTimer.getFps());
 			lastLoggedTime = frameTimer.getTime();
 		}
-	}
-
-	// Clean up pointers
-	if (renderConfig != nullptr) {
-		delete renderConfig;
 	}
 
     return 0;
 }
 
 /**
+ * Calculate the necessary block height in pixels
+ */
+bool calculateBlockSize(uint32_t& blockSize, 
+                        uint32_t numBlocks, 
+                        uint32_t windowHeight)
+{
+	if (numBlocks <= 0 || windowHeight <= 0) {
+		return false;
+	}
+	
+	// 16 is the smallest possible block size
+	blockSize = 16;
+	
+	// Increase the block size by 16 until 20 blocks don't fit in the window
+	if (numBlocks * blockSize < windowHeight) {
+		while ((blockSize + 16) * numBlocks <= windowHeight) {
+			blockSize += 16;
+		}
+	}
+	
+	cout << "Block Size: " << blockSize << endl;
+	
+	return true;
+}
+
+/**
  * Get command-line arguments and override current renderConfig settings.
  */
-void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
+void loadRenderArgs(int argc, char* argv[], RenderConfig& renderConfig)
 {
 	stringstream error;
 
@@ -100,7 +143,7 @@ void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
 		if (arg.find('=') == string::npos) {
 			// argument is a flag
 			if (arg.compare("sw") == 0) {
-				renderConfig->hardware_accelerated = false;
+				renderConfig.hardware_accelerated = false;
 			}
 			else {
 				error << "Unknown arg (flag): " << arg;
@@ -114,13 +157,13 @@ void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
 			
 			// Check key-value settings here
 			if (k.compare("fullscreen") == 0) {
-				renderConfig->fullscreen = v.compare("true") == 0;
+				renderConfig.fullscreen = v.compare("true") == 0;
 			}
 			else if (k.compare("show_fps") == 0) {
-				renderConfig->show_fps = v.compare("true") == 0;
+				renderConfig.show_fps = v.compare("true") == 0;
 			}
 			else if (k.compare("hardware_accelerated") == 0) {
-				renderConfig->hardware_accelerated = v.compare("true") == 0;
+				renderConfig.hardware_accelerated = v.compare("true") == 0;
 			}
 			else {
 				error << "Unknown arg (key-value pair): " << arg;
@@ -133,13 +176,11 @@ void loadArgs(int argc, char* argv[], RenderConfig* renderConfig)
 /**
  * Load RenderConfig from a file (RenderConfig defined in Types.hpp)
  */
-RenderConfig* loadRenderConfig()
+void loadRenderConfig(RenderConfig& renderConfig)
 {
-	RenderConfig* r = new RenderConfig();
-
 	string line;
 	stringstream error;
-	fstream in(r->filename, ios_base::in);
+	fstream in(renderConfig.filename, ios_base::in);
 	
 	while(getline(in, line)) {
 		if (line.find('=') == string::npos) {
@@ -154,28 +195,28 @@ RenderConfig* loadRenderConfig()
 			
 			// Check key-value settings here
 			if (k.compare("background_camera") == 0) {
-				r->background_camera = atoi(v.c_str());
+				renderConfig.background_camera = atoi(v.c_str());
 			}
 			else if (k.compare("background_level") == 0) {
-				r->background_level = atoi(v.c_str());
+				renderConfig.background_level = atoi(v.c_str());
 			}
 			else if (k.compare("frame_timer_window") == 0) {
-				r->frame_timer_window = atoi(v.c_str());
+				renderConfig.frame_timer_window = atoi(v.c_str());
 			}
 			else if (k.compare("fullscreen") == 0) {
-				r->fullscreen = v.compare("true") == 0;
+				renderConfig.fullscreen = v.compare("true") == 0;
 			}
 			else if (k.compare("hardware_accelerated") == 0) {
-				r->hardware_accelerated = v.compare("true") == 0;
+				renderConfig.hardware_accelerated = v.compare("true") == 0;
 			}
 			else if (k.compare("show_fps") == 0) {
-				r->show_fps = v.compare("true") == 0;
+				renderConfig.show_fps = v.compare("true") == 0;
 			}
 			else if (k.compare("window_height") == 0) {
-				r->window_height = atoi(v.c_str());
+				renderConfig.window_height = atoi(v.c_str());
 			}
 			else if (k.compare("window_width") == 0) {
-				r->window_width = atoi(v.c_str());
+				renderConfig.window_width = atoi(v.c_str());
 			}
 			else {
 				error << "Unknown arg (key-value pair): " << line;
@@ -183,8 +224,6 @@ RenderConfig* loadRenderConfig()
 			}
 		}
 	}
-
-	return r;
 }
 
 /**

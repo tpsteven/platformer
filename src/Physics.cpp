@@ -21,19 +21,20 @@ Physics::~Physics()
 }
 
 
-void
+bool
 Physics::step(Scene& scene, 
               Character& player,
               Camera& camera, 
               const Input& input, 
               uint32_t lastFrameTime)
 {
+	bool playerAlive;
 	FPair oldPosition(player.getPos().x, player.getPos().y);
 	FPair newPosition;
 	SDL_Rect intersection;
 	
 	// Move the player based on the input
-	parseInput(scene, player, input, lastFrameTime);
+	playerAlive = parseInput(scene, player, input, lastFrameTime);
 
 /*
 To anyone else that reads this, I feel like I owe a bit of explanation. 
@@ -101,7 +102,10 @@ platforms the player has passed. It's an option though.
 				}
 			}
 			
-			player.setPosition(newPosition, scene.getBounds());
+			if (!player.setPosition(newPosition, scene.getCollisionBounds())) {
+				playerAlive = false;
+				cout << "player dead";
+			}
 		}
 	}
 		}
@@ -152,25 +156,29 @@ platforms the player has passed. It's an option though.
 				}
 			}
 			
-			player.setPosition(newPosition, scene.getBounds());
+			if (!player.setPosition(newPosition, scene.getCollisionBounds())) {
+				cout << "player dead";
+				playerAlive = false;
+			}
 		}
 	}
 	}
 	
 	// Add more platforms as player gets close to the edge
-	if (scene.getBounds().w - player.getRect().x < camera.getRect().w) {
-		scene.addRandomPlatform(3);
-	}
+	// if (scene.getBounds().w - player.getRect().x < camera.getRect().w) {
+	//	scene.addRandomPlatform(3);
+	//}
 	
 	// Center the camera on the player
 	camera.centerOnCharacter(player, scene.getBounds());
+	return playerAlive;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Private helper functions (defined in Physics.cpp)
 ////////////////////////////////////////////////////////////////////////////////
  
-void
+bool
 Physics::parseInput(const Scene& scene,
                     Character& player, 
                     const Input& input,
@@ -200,6 +208,6 @@ Physics::parseInput(const Scene& scene,
 		delta.y = 0;
 	}
 	
-	// Move the player (using the scene boundaries as boundaries)
-	player.shiftPosition(delta, scene.getBounds());
+	// Move the player
+	return player.shiftPosition(delta, scene.getCollisionBounds());
 }

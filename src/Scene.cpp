@@ -5,30 +5,17 @@
 #include <cassert>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 #include <list>
 #include <string>
 using namespace std;
 
 #include "Types.hpp"
 
-Scene::Scene(uint32_t blockSize)
-	: currentName(""), blockSize(blockSize)
+Scene::Scene()
 {
 	// Initialize the random number generator
 	srand(time(NULL));
-	
-	SDL_Rect rect { 0, 0, 8, 8 };
-	setBounds(rect);
-	
-	rect.w = 3;
-	rect.h = 1;
-	
-	// create a default scene
-	for (int i = 1; i < 16; ++i) {
-		rect.x = i * 4;
-		rect.y = (i - 1) * 3;
-		addPlatform(rect, true);
-	}
 }
 
 Scene::~Scene()
@@ -89,20 +76,58 @@ Scene::expandBounds(const SDL_Rect& rect, bool allowVerticalExpansion)
 }
 
 void
-Scene::load(string sceneName)
-{
-	currentName = sceneName;
+Scene::load(SceneType type, uint32_t blockSize)
+{	
+	this->blockSize = blockSize;
+	currentType = type;
 	
-	// TODO
+	switch (type) {
+		case ARENA_DEFAULT:
+			cout << "Loading ARENA_DEFAULT: ";
+			expandHorizontally = false;
+		
+			// Set scene boundaries
+			setBounds({ 0, 0, 40, 20 });
+			
+			// Create level boundaries
+			addPlatform({0, 0, 22, 1});	  // Bottom left
+			addPlatform({26, 0, 14, 1});  // Bottom right
+			addPlatform({0, 9, 1, 10});   // Left top
+			addPlatform({0, 3, 1, 3});    // Left bottom
+			addPlatform({39, 13, 1, 6});  // Right top
+			addPlatform({39, 1, 1, 10});  // Right bottom
+			addPlatform({0, 19, 6, 1});   // Top left
+			addPlatform({8, 19, 18, 1});  // Top middle
+			addPlatform({30, 19, 10, 1}); // Top right
+			
+			// Add some platforms
+			for (int i = 1; i < 6; ++i) {
+				addPlatform({ i * 5, i * 3, 3, 1 }, true);
+			}
+			
+			// Add some more platforms
+			addPlatform({20, 4, 14, 1});
+			addPlatform({35, 9, 3, 1});
+			addPlatform({30, 12, 3, 1});
+			
+			cout << "COMPLETE" << endl;
+			break;
+			
+		case ENDLESS:
+			expandHorizontally = true;
+			
+			break;
+			
+		default:
+			break;
+	}
 }
 
 void
 Scene::reset()
 {
-	currentName = "";
 	platforms.clear();
-
-	// TODO: reset player position, enemy states, etc
+	load(currentType, blockSize);
 }
 
 void
@@ -112,9 +137,14 @@ Scene::setBounds(const SDL_Rect& rect)
 	blockBounds.y = rect.y;
 	blockBounds.w = rect.w;
 	blockBounds.h = rect.h;
-
+	
 	bounds.x = blockBounds.x * blockSize;
 	bounds.y = blockBounds.y * blockSize;
 	bounds.w = blockBounds.w * blockSize;
 	bounds.h = blockBounds.h * blockSize;
+	
+	collisionBounds.x = -3 * blockSize;
+	collisionBounds.y = -3 * blockSize;
+	collisionBounds.w = (blockBounds.w + 6) * blockSize;
+	collisionBounds.h = (blockBounds.h + 12) * blockSize;
 }

@@ -8,8 +8,7 @@ using namespace std;
 
 #include "Types.hpp"
 
-FrameTimer::FrameTimer(unsigned char windowSize)
-	: windowSize(windowSize)
+FrameTimer::FrameTimer()
 {
 	// intentionally empty
 }
@@ -17,6 +16,14 @@ FrameTimer::FrameTimer(unsigned char windowSize)
 FrameTimer::~FrameTimer()
 {
 	// intentionally empty
+}
+
+bool
+FrameTimer::init(unsigned char windowSize)
+{
+	this->windowSize = windowSize;
+	
+	return true;
 }
 
 void

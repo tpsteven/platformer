@@ -9,15 +9,9 @@ using namespace std;
 #include "Character.hpp"
 #include "Types.hpp"
 
-Camera::Camera(int x, int y, uint32_t width, uint32_t height)
+Camera::Camera()
 {
-	pos.x = x;
-	pos.y = y;
-	
-	rect.x = x;
-	rect.y = y;
-	rect.w = width;
-	rect.h = height;
+	// intentionally empty
 }
 
 Camera::~Camera()
@@ -36,6 +30,20 @@ Camera::centerOnCharacter(const Character& character, const SDL_Rect& bounds)
 	corner.y -= rect.h / 2.0;
 	
 	setPosition(corner, bounds);
+}
+
+bool
+Camera::init(uint32_t width, uint32_t height)
+{
+	pos.x = 0;
+	pos.y = 0;
+	
+	rect.x = 0;
+	rect.y = 0;
+	rect.w = width;
+	rect.h = height;
+	
+	return true;
 }
 
 void
