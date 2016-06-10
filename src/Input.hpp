@@ -26,6 +26,7 @@ public:
 	bool getX()     const { return x; }
 	bool getY()     const { return y; }
 	
+	bool getAlt()   const { return alt; }
 private:
 	bool a     = false;
 	bool b     = false;
@@ -36,6 +37,8 @@ private:
 	bool x     = false;
 	bool y     = false;
 	
+	bool alt   = false;
+
 	queue<ButtonEvent> events;
 };
 

@@ -17,7 +17,7 @@ typedef unsigned int uint32_t;
 typedef unsigned char uchar_t;
 
 enum class Button {
-	A, B, X, Y, Down, Left, Up, Right
+	A, B, X, Y, Down, Left, Up, Right, Alt
 };
 
 enum class ButtonState {
