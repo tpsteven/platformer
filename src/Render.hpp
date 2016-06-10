@@ -21,7 +21,7 @@ public:
 	/**
 	 * Create a Render system with the given block size in world coordinates
 	 */
-	Render(uint32_t blockSize);
+	Render();
 	
 	/**
 	 * Clean up any memory allocations made by the Render system
@@ -46,7 +46,7 @@ public:
 	 * 
 	 * Returns true if successful, otherwise false
 	 */
-	bool createWindow(const char* title, const RenderConfig* renderConfig);
+	bool createWindow(const char* title, const RenderConfig& renderConfig);
 	
 	/**
 	 * Initializes SDL library (MUST BE CALLED BEFORE ANYTHING ELSE)
@@ -63,13 +63,13 @@ public:
 	void render(const Scene& scene, 
 	            const Character& player, 
 	            const Camera& camera);
-				
+	
 	/**
 	 * If the game is fullscreen, prints a message to the console with the fps
 	 * Otherwise, updates the window title with the current fps
 	 */
 	void updateFps(float fps);
-
+	
 	////////////////////////////////////////////////////////////////////////////
 	// Public accessor functions (defined here, not in Render.cpp)
 	////////////////////////////////////////////////////////////////////////////
@@ -108,7 +108,6 @@ private:
 	SDL_Window*   window;      // Pointer to the window
 	string        title;       // Window title
 	stringstream  titleStream; // Stream for updating the window title
-	uint32_t      blockSize;   // Block size in world coordinates
 };
 
 #endif

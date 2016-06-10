@@ -1,6 +1,7 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
+#include <initializer_list>
 #include <string>
 using namespace std;
 
@@ -16,7 +17,7 @@ typedef unsigned int uint32_t;
 typedef unsigned char uchar_t;
 
 enum class Button {
-	A, B, X, Y, Down, Left, Up, Right
+	A, B, X, Y, Down, Left, Up, Right, Alt
 };
 
 enum class ButtonState {
@@ -40,6 +41,12 @@ struct FPair {
 
 	FPair() : x(0.0f), y(0.0f) {}
 	FPair(float x, float y) : x(x), y(y) {}
+	
+	FPair(const initializer_list<float>& il) {
+		auto it = il.begin();
+		x = *it++;
+		y = *it;
+	}
 };
 
 /**

@@ -16,7 +16,7 @@ public:
 	 * Create a Camera whose lower left corner is at (x, y) in world coordinates
 	 * and set its width and height
 	 */
-	Camera(int x, int y, uint32_t width, uint32_t height);
+	Camera();
 	
 	/**
 	 * Clean up any memory allocations made by the Camera
@@ -32,6 +32,11 @@ public:
 	 * character's center while remaining within the specified bounds
 	 */
 	void centerOnCharacter(const Character& character, const SDL_Rect& bounds);
+	
+	/**
+	 * Initialize the Camera 
+	 */
+	bool init(uint32_t width, uint32_t height);
 	
 	/**
 	 * Move the Camera to the specified destination while remaining within the

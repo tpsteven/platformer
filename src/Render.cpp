@@ -1,5 +1,6 @@
 #include "Render.hpp"
 
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -15,8 +16,8 @@ using namespace std;
 #include "Scene.hpp"
 #include "Types.hpp"
 
-Render::Render(uint32_t blockSize)
-	: renderer(nullptr), window(nullptr), blockSize(blockSize)
+Render::Render()
+	: renderer(nullptr), window(nullptr)
 {
 	// Intentionally empty, because initialization occurs in Render::init()
 	// It's there because it could fail, and throwing an exception in a 
@@ -41,7 +42,7 @@ Render::~Render()
 }
 
 bool
-Render::createWindow(const char* title, const RenderConfig* renderConfig)
+Render::createWindow(const char* title, const RenderConfig& renderConfig)
 {
 	if (window != nullptr) {
 		Log::error("Render::createWindow()", "Window already exists");
@@ -53,7 +54,7 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 	// Create window
 	uint32_t windowFlags = 0;
 
-	if (renderConfig->fullscreen) {
+	if (renderConfig.fullscreen) {
 		windowFlags |= SDL_WINDOW_FULLSCREEN;
 		fullscreen = true;
 		
@@ -68,8 +69,8 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 	}
 	else {
 		fullscreen = false;
-		width = renderConfig->window_width;
-		height = renderConfig->window_height;
+		width = renderConfig.window_width;
+		height = renderConfig.window_height;
 	}
 
 	window = SDL_CreateWindow(title,
@@ -88,7 +89,7 @@ Render::createWindow(const char* title, const RenderConfig* renderConfig)
 	// Create renderer for window
 	uint32_t rendererFlags = SDL_RENDERER_SOFTWARE;
 
-	if (renderConfig->hardware_accelerated) {
+	if (renderConfig.hardware_accelerated) {
 		rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 	}
 
@@ -160,7 +161,7 @@ Render::render(const Scene& scene, const Character& player, const Camera& camera
 	SDL_Rect intersectRect; // for checking the intersection between an object
 	                        //   and the camera
 	SDL_Rect worldRect;     // cached object rect (to avoid calling getRect())
-
+	
 	// Clear screen
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	SDL_RenderClear(renderer);
@@ -171,9 +172,9 @@ Render::render(const Scene& scene, const Character& player, const Camera& camera
 	worldToSDL(intersectRect, camera.getRect());
 	
 	// Draw level background
-	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
 	SDL_RenderFillRect(renderer, &intersectRect);
-
+	
 	// Draw all platforms
 	SDL_SetRenderDrawColor(renderer, 0x7D, 0xC1, 0xF0, 0xFF);
 	for (Platform p : scene.getPlatforms()) {
@@ -185,14 +186,16 @@ Render::render(const Scene& scene, const Character& player, const Camera& camera
 			SDL_RenderFillRect(renderer, &intersectRect);
 		}
 	}
-
+	
 	// Draw player
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
 	worldRect = player.getRect();
-	SDL_IntersectRect(&worldRect, &camera.getRect(), &intersectRect);
- 	worldToSDL(intersectRect, camera.getRect());
-	SDL_RenderFillRect(renderer, &intersectRect);
-
+	if (SDL_IntersectRect(&worldRect, &camera.getRect(), &intersectRect) == 
+	    SDL_TRUE) {
+		worldToSDL(intersectRect, camera.getRect());
+		SDL_RenderFillRect(renderer, &intersectRect);
+	}
+	
 	// Push update to the window
 	SDL_RenderPresent(renderer);
 }

@@ -32,7 +32,7 @@ public:
 	 * checking for collisions with other objects in the Scene, and then moves
 	 * the camera to follow the player.
 	 */
-	void step(Scene& scene,
+	bool step(Scene& scene,
 	          Character& player,
 	          Camera& camera, 
 	          const Input& input, 
@@ -42,7 +42,7 @@ private:
 	////////////////////////////////////////////////////////////////////////////
 	// Private helper functions (defined in Physics.cpp)
 	////////////////////////////////////////////////////////////////////////////
-	void parseInput(const Scene& scene,
+	bool parseInput(const Scene& scene,
 	                Character& player, 
 	                const Input& input, 
 	                uint32_t lastFrameTime);

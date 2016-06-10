@@ -11,10 +11,11 @@ public:
 	Input();
 	~Input();
 	
-	void clear();
+	void clearEvents();
 	int  pollEvent(ButtonEvent& event);
 	void pushEvent(const ButtonEvent& event);
 	void pushEvent(const Button& button, const ButtonState& buttonState);
+	void reset();
 	
 	bool getA()     const { return a; }
 	bool getB()     const { return b; }
@@ -25,6 +26,7 @@ public:
 	bool getX()     const { return x; }
 	bool getY()     const { return y; }
 	
+	bool getAlt()   const { return alt; }
 private:
 	bool a     = false;
 	bool b     = false;
@@ -35,6 +37,8 @@ private:
 	bool x     = false;
 	bool y     = false;
 	
+	bool alt   = false;
+
 	queue<ButtonEvent> events;
 };
 

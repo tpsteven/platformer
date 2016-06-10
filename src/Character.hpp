@@ -18,7 +18,7 @@ public:
 	 * Create a Character whose lower left corner is at (x, y) in world
 	 * coordinates and set its width and height to blockWidth
 	 */
-	Character(int x, int y, uint32_t blockSize);
+	Character();
 	
 	/**
 	 * Clean up any memory allocations made by the Character
@@ -30,16 +30,36 @@ public:
 	////////////////////////////////////////////////////////////////////////////
 	
 	/**
+	 * Initialize the Character with a position and blockSize
+	 */
+	bool init(int x, int y, uint32_t blockSize);
+	
+	
+	/**
+	 * Move the Character to the specified destination without checking bounds
+	 */
+	void setPosition(const FPair& dest);
+	
+	/**
 	 * Move the Character to the specified destination while remaining within
 	 * the specified bounds
+	 *
+	 * Returns false if position intersects collisionBounds
 	 */
-	void setPosition(const FPair& dest, const SDL_Rect& bounds);
+	bool setPosition(const FPair& dest, const SDL_Rect& collisionBounds);
+	
+	/**
+	 * Shift the Character by the specified amount without checking bounds
+	 */
+	void shiftPosition(const FPair& delta);
 	
 	/**
 	 * Shift the Character by the specified amount while remaining within the
 	 * specified bounds
+	 *
+	 * Returns false if position intersects collisionBounds
 	 */
-	void shiftPosition(const FPair& delta, const SDL_Rect& bounds);
+	bool shiftPosition(const FPair& delta, const SDL_Rect& collisionBounds);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Public accessor functions (defined here, not in Character.cpp)

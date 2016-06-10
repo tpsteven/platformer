@@ -11,13 +11,18 @@ using namespace std;
 class Scene {
 public:
 	////////////////////////////////////////////////////////////////////////////
+	// Types of Scenes
+	////////////////////////////////////////////////////////////////////////////
+	enum SceneType { ARENA_DEFAULT, ENDLESS };
+	
+	////////////////////////////////////////////////////////////////////////////
 	// Constructors/Destructor (defined in Scene.cpp)
 	////////////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * Create a default scene with the specified blockSize
 	 */
-	Scene(uint32_t blockSize);
+	Scene();
 	
 	/**
 	 * Clean up any memory allocations made by the Scene
@@ -41,7 +46,7 @@ public:
 	/**
 	 * Release the current resources and load a new scene.
 	 */
-	void load(string sceneName);
+	void load(SceneType type, uint32_t blockSize);
 	
 	/**
 	 * Reset the player position, enemy positions, etc.
@@ -54,8 +59,16 @@ public:
 		return platforms;
 	}
 
+	uint32_t getBlockSize() const {
+		return blockSize;
+	}
+	
 	const SDL_Rect& getBounds() const {
 		return bounds;
+	}
+	
+	const SDL_Rect& getCollisionBounds() const {
+		return collisionBounds;
 	}
 	
 private:
@@ -69,10 +82,13 @@ private:
 
 	bool expandBounds(const SDL_Rect& rect, bool allowVerticalExpansion);
 
+	bool expandHorizontally;    // as the player approaches the right edge of the
+	                            //   scene, should platforms be added?
 	list<Platform> platforms;
-	SDL_Rect bounds;
+	SceneType currentType;
 	SDL_Rect blockBounds;
-	string currentName;
+	SDL_Rect bounds;
+	SDL_Rect collisionBounds;	// if player exits these boundaries, s/he dies
 	uint32_t blockSize;
 	
 	// doubly-linked list of Chunk nodes (deallocate when death laser passes)

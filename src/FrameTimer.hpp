@@ -18,7 +18,7 @@ public:
 	/**
 	 *  Create a FrameTimer with the specified window size
 	 */
-	FrameTimer(unsigned char windowSize);
+	FrameTimer();
 	
 	/**
 	 * Clean up any memory allocations made by the FrameTimer
@@ -29,6 +29,11 @@ public:
 	// Public mutator functions (defined in Camera.cpp)
 	////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * Initialize the FrameTimer with windowSize
+	 */
+	bool init(unsigned char windowSize);
+	
 	/**
 	 * Stop the timer and clear all recorded frame times
 	 */

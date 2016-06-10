@@ -1,9 +1,21 @@
 #include "Character.hpp"
 
 #include <cmath>
+#include <iostream>
 using namespace std;
 
-Character::Character(int x, int y, uint32_t blockSize)
+Character::Character()
+{
+	// Intentionally empty
+}
+
+Character::~Character()
+{
+	// Intentionally empty
+}
+
+bool
+Character::init(int x, int y, uint32_t blockSize)
 {
 	pos.x = x;
 	pos.y = y;
@@ -12,68 +24,79 @@ Character::Character(int x, int y, uint32_t blockSize)
 	rect.y = y;
 	rect.w = blockSize;
 	rect.h = blockSize;
-}
-
-Character::~Character()
-{
-	// Intentionally empty
+	
+	return true;
 }
 
 void 
-Character::setPosition(const FPair& dest, const SDL_Rect& bounds)
+Character::setPosition(const FPair& dest)
 {
+	pos.x = dest.x;
+	rect.x = round(pos.x);
+	
+	pos.y = dest.y;
+	rect.y = round(pos.y);
+}
+
+bool 
+Character::setPosition(const FPair& dest, const SDL_Rect& collisionBounds)
+{	
+	if (dest.x < collisionBounds.x ||
+	    dest.y < collisionBounds.y ||
+		dest.x + rect.w >= collisionBounds.x + collisionBounds.w ||
+		dest.y + rect.h >= collisionBounds.y + collisionBounds.h) 
+	{
+		return false;
+	}
+	
 	// Set x-position
-	if (rect.w >= bounds.w) {
-		// Center horizontally on the bounds' center
-		rect.x = bounds.x - (rect.w - bounds.w) / 2;
+	if (dest.x <= collisionBounds.x) {
+		// Bounded on left
+		rect.x = collisionBounds.x;
+		pos.x = rect.x;
+	}
+	else if (dest.x + rect.w >= collisionBounds.x + collisionBounds.w) {
+		// Bounded on right
+		rect.x = collisionBounds.x + collisionBounds.w - rect.w;
 		pos.x = rect.x;
 	}
 	else {
-		if (dest.x <= bounds.x) {
-			// Bounded on left
-			rect.x = bounds.x;
-			pos.x = rect.x;
-		}
-		else if (dest.x + rect.w >= bounds.x + bounds.w) {
-			// Bounded on right
-			rect.x = bounds.x + bounds.w - rect.w;
-			pos.x = rect.x;
-		}
-		else {
-			// Not bounded
-			pos.x = dest.x;
-			rect.x = round(pos.x);
-		}
+		// Not bounded
+		pos.x = dest.x;
+		rect.x = round(pos.x);
 	}
 
 	// set y-position
-	if (rect.h >= bounds.h) {
-		// Center vertically on the bounds' center
-		rect.y = bounds.y - (rect.h - bounds.h) / 2;
+	if (dest.y <= collisionBounds.y) {
+		// Bounded on bottom
+		rect.y = collisionBounds.y;
+		pos.y = rect.y;
+	}
+	else if (dest.y + rect.h >= collisionBounds.y + collisionBounds.h) {
+		// Bounded on top
+		rect.y = collisionBounds.y + collisionBounds.h - rect.h;
 		pos.y = rect.y;
 	}
 	else {
-		if (dest.y <= bounds.y) {
-			// Bounded on bottom
-			rect.y = bounds.y;
-			pos.y = rect.y;
-		}
-		else if (dest.y + rect.h >= bounds.y + bounds.h) {
-			// Bounded on top
-			rect.y = bounds.y + bounds.h - rect.h;
-			pos.y = rect.y;
-		}
-		else {
-			// Not bounded
-			pos.y = dest.y;
-			rect.y = round(pos.y);
-		}
+		// Not bounded
+		pos.y = dest.y;
+		rect.y = round(pos.y);
 	}
+	
+	// If they intersect, return true
+	return true;
 }
 
-void 
-Character::shiftPosition(const FPair& delta, const SDL_Rect& bounds)
+void
+Character::shiftPosition(const FPair& delta)
 {
 	FPair corner(pos.x + delta.x, pos.y + delta.y);
-	setPosition(corner, bounds);
+	setPosition(corner);
+}
+
+bool 
+Character::shiftPosition(const FPair& delta, const SDL_Rect& collisionBounds)
+{
+	FPair corner(pos.x + delta.x, pos.y + delta.y);
+	return setPosition(corner, collisionBounds);
 }
