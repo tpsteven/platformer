@@ -100,6 +100,8 @@ public:
 	const SDL_Rect& getRect() const {
 		return rect;
 	}
+	
+	bool touchingGround;
 
 private:
 	// All positions in world coordinates
@@ -108,6 +110,7 @@ private:
 	SDL_Rect rect;
 	
 	// Velocity and acceleration in world coordinates
+	// bool touchingGround;
 	FPair vel;
 	FPair acc;
 };

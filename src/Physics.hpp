@@ -38,18 +38,18 @@ public:
 	bool step(Scene& scene,
 	          Character& player,
 	          Camera& camera, 
-	          const Input& input, 
+	          Input& input, 
 	          uint32_t lastFrameTime);
 
 private:
 	////////////////////////////////////////////////////////////////////////////
 	// Private helper functions (defined in Physics.cpp)
 	////////////////////////////////////////////////////////////////////////////
-    FPair checkCollision(const Character& p, const SDL_Rect& r);
+    FPair checkCollision(Character& p, const SDL_Rect& r);
     
 	FPair parseInput(const Scene& scene,
 	                 Character& player, 
-	                 const Input& input, 
+	                 Input& input, 
 	                 uint32_t lastFrameTime);
 	
 	// Cached mathematical constants

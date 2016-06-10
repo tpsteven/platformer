@@ -24,12 +24,14 @@ Input::clearEvents()
 int
 Input::pollEvent(ButtonEvent& event)
 {
-	assert(events.size() > 0);
+	if (events.size() == 0) {
+		return 0;
+	}
 	
 	event = events.front();
 	events.pop();
 	
-	return events.size();
+	return events.size() + 1;
 }
 
 void
@@ -80,6 +82,9 @@ Input::pushEvent(const Button& button, const ButtonState& buttonState)
 			
 		case Button::Alt:
 			alt = (buttonState == ButtonState::Pressed);
+			break;
+			
+		default:
 			break;
 	}
 }

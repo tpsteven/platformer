@@ -9,6 +9,7 @@ using namespace std;
 #include "Character.hpp"
 #include "Input.hpp"
 #include "Scene.hpp"
+#include "Types.hpp"
 
 Physics::Physics()
 	: framesSinceReleasedB(-1)
@@ -26,7 +27,7 @@ bool
 Physics::step(Scene& scene, 
               Character& player,
               Camera& camera, 
-              const Input& input, 
+              Input& input, 
               uint32_t lastFrameTime)
 {
 	FPair oldPosition(player.getPos().x, player.getPos().y);
@@ -57,7 +58,17 @@ Physics::step(Scene& scene,
 		}
 	}
 	
-	// Add the corrections
+	// Update player kinematic state	
+	if (correctionPair.y > 0) {
+		player.touchingGround = true;
+		player.setVelocity(player.getVel().x, 0);
+	}
+	else if (correctionPair.y < 0) {
+		player.touchingGround = false;
+		player.setVelocity(player.getVel().x, 0);
+	}
+	
+	// Add the correction
 	player.shiftPosition(correctionPair);
     
 	// Center the camera on the player
@@ -71,7 +82,7 @@ Physics::step(Scene& scene,
 ////////////////////////////////////////////////////////////////////////////////
  
 FPair
-Physics::checkCollision(const Character& p, const SDL_Rect& r)
+Physics::checkCollision(Character& p, const SDL_Rect& r)
 {
 	FPair delta;
     FPair v = p.getVel();
@@ -85,6 +96,7 @@ Physics::checkCollision(const Character& p, const SDL_Rect& r)
 	if (intersection.w == p.getRect().w || intersection.w == r.w) {
 		delta.x = 0;
 		delta.y = (p.getRect().y > r.y) ? intersection.h : -1 * intersection.h;
+		p.touchingGround = delta.y >= 0;
 		return delta;
 	}
 	
@@ -105,12 +117,14 @@ Physics::checkCollision(const Character& p, const SDL_Rect& r)
 		else {
 			delta.x = 0;
 			delta.y = (p.getRect().y > r.y) ? intersection.h : -1 * intersection.h;
+			p.touchingGround = delta.y >= 0;
 			return delta;
 		}
 	}
 	else if (abs(v.y) > abs(v.x)) {
 		delta.x = 0;
 		delta.y = (p.getRect().y > r.y) ? intersection.h : -1 * intersection.h;
+		p.touchingGround = delta.y >= 0;
 		return delta;
 	}
 	else {
@@ -123,39 +137,46 @@ Physics::checkCollision(const Character& p, const SDL_Rect& r)
 FPair
 Physics::parseInput(const Scene& scene,
                     Character& player, 
-                    const Input& input,
+                    Input& input,
                     uint32_t lastFrameTime)
 {
-	float v = 320.0f;                          // velocity in pixels per second
-	float vReal = v * lastFrameTime / 1000.0f; // v adjusted for frame rate
-	FPair delta(vReal, vReal);                 // Velocity starts up and right
+	float g = -3000.0f;
+	float j = 1000.0f;
+	ButtonEvent e;
+	FPair velocity = { 320, player.getVel().y };
+	
+	while (input.pollEvent(e)) {
+		switch (e.button) {
+			case Button::A:	
+				if (e.state == ButtonState::Pressed && player.touchingGround) {
+					velocity.y = j;
+					player.touchingGround = false;
+				}
+				
+				break;
+				
+			default:
+				break;
+		}
+	}
+	
+	if (player.touchingGround) {
+		player.setVelocity(player.getVel().x, 0);
+	}
 	
 	if (input.getLeft() && !input.getRight()) {
 		// Left pressed, so move left
-		delta.x *= -1;
+		velocity.x *= -1;
 	}
 	else if ((input.getLeft() && input.getRight()) ||
 			(!input.getLeft() && !input.getRight())) {
 		// Both or neither pressed, so don't move horizontally
-		delta.x = 0;
+		velocity.x = 0;
 	}
 	
-	if (input.getDown() && !input.getUp()) {
-		// Down pressed, so move down
-		delta.y *= -1;
-	}
-	else if ((input.getDown() && input.getUp()) ||
-			(!input.getDown() && !input.getUp())) {
-		// Both or neither pressed, so don't move vertically
-		delta.y = 0;
-	}
-	
-	if (input.getAlt()) {
-		delta.x *= 0.2;
-	}
-	
-	player.setVelocity(delta);
+	player.setVelocity(velocity.x, velocity.y + g * lastFrameTime / 1000.0f);
 	
 	// Move the player
-	return delta;
+	return { player.getVel().x * lastFrameTime / 1000.0f,
+	         player.getVel().y * lastFrameTime / 1000.0f } ;
 }

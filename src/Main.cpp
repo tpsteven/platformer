@@ -94,12 +94,17 @@ int main(int argc, char* argv[])
 			scene.reset();
 			camera.centerOnCharacter(player, scene.getBounds());
 			player.setPosition({ (float) blockSize, (float) blockSize });
+			player.setVelocity({ 0, 0 });
+			player.touchingGround = true;
 			
 			renderer.render(scene, player, camera);
 			SDL_Delay(500);
 			pollKeyboardInput(input, reset);
 			input.reset();
 			reset = false;
+			frameTimer.tick();
+			SDL_Delay(17);
+			frameTimer.tick();
 		}
 		
 		// Get input, change run to false if necessary

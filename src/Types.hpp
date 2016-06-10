@@ -17,17 +17,18 @@ typedef unsigned int uint32_t;
 typedef unsigned char uchar_t;
 
 enum class Button {
-	A, B, X, Y, Down, Left, Up, Right, Alt
+	A, B, X, Y, Down, Left, Up, Right, Alt, Null
 };
 
 enum class ButtonState {
-	Pressed, Released
+	Pressed, Released, Null
 };
 
 struct ButtonEvent {
 	Button      button;
 	ButtonState state;
 	
+	ButtonEvent() : button(Button::Null), state(ButtonState::Null) {}
 	ButtonEvent(const Button& b, const ButtonState& s) : button(b), state(s) {}
 	ButtonEvent(const ButtonEvent& e) : button(e.button), state(e.state) {}
 };
