@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <list>
 using namespace std;
 
 #include "Camera.hpp"
@@ -28,157 +29,98 @@ Physics::step(Scene& scene,
               const Input& input, 
               uint32_t lastFrameTime)
 {
-	bool playerAlive;
 	FPair oldPosition(player.getPos().x, player.getPos().y);
-	FPair newPosition;
-	SDL_Rect intersection;
+	FPair delta = parseInput(scene, player, input, lastFrameTime);
+    FPair correctionPair;
+    
+    correctionPairs.clear();
 	
 	// Move the player based on the input
-	playerAlive = parseInput(scene, player, input, lastFrameTime);
-
-/*
-To anyone else that reads this, I feel like I owe a bit of explanation. 
-Apparently, with the current collision code, you have to iterate through
-the platforms in the direction of travel in order to safely resolve collisions
-from two adjacent platforms. So I set the direction of iteration to match
-the player's direction of movement to fix this problem. It's a horrible solution
-and I'm ashamed, since I should really just iterate through them in one direction
-and sum the collision changes at the end like an actual good person. But I have
-no conscience, and so it will remain for now.
-
-Quick note to future Tyler: always iterate from right to left, since you'll be
-able to terminate quicker? I guess it won't matter once we start discarding 
-platforms the player has passed. It's an option though.
-*/
-
-	// Check collisions
-	if (oldPosition.x > player.getPos().x) {
-		for (auto it = scene.getPlatforms().rbegin();
-		     it != scene.getPlatforms().rend();
-		     ++it) {
-		Platform p = *it;
-
-		if (SDL_IntersectRect(&p.getRect(), &player.getRect(), &intersection) ==
-		    SDL_TRUE) {
-			// TODO: look at horizontal and vertical velocities, determine 
-			//   whether player would hit side or top/bottom first
-			
-			// TODO: fix case where player holds down and moves across two
-			// connected platforms (or just avoid two connected platforms in the
-			// first place)
-			if (intersection.w < intersection.h) {
-				if (oldPosition.x < player.getPos().x) {
-					newPosition.x = p.getRect().x - player.getRect().w;
-				}
-				else {
-					newPosition.x = p.getRect().x + p.getRect().w;
-				}
-				
-				newPosition.y = player.getPos().y;
-			}
-			else if (intersection.w > intersection.h) {
-				if (oldPosition.y < player.getPos().y) {
-					newPosition.y = p.getRect().y - player.getRect().h;
-				}
-				else {
-					newPosition.y = p.getRect().y + p.getRect().h;
-				}
-				
-				newPosition.x = player.getPos().x;
-			}
-			else {
-				if (player.getRect().x == intersection.x) {
-					newPosition.x = player.getPos().x + intersection.w;
-				}
-				else {
-					newPosition.x = player.getPos().x - intersection.w;
-				}
-				
-				if (player.getRect().y == intersection.y) {
-					newPosition.y = player.getPos().y + intersection.h;
-				}
-				else {
-					newPosition.y = player.getPos().y - intersection.h;
-				}
-			}
-			
-			if (!player.setPosition(newPosition, scene.getCollisionBounds())) {
-				playerAlive = false;
-				cout << "player dead";
-			}
+	if (!player.shiftPosition(delta, scene.getCollisionBounds())) {
+        // Part of player is outside scene bounds, dies violently
+        return false;
+    }
+    
+    // Check collisions and add necessary corrections to list
+    for (const Platform& p : scene.getPlatforms()) {
+        correctionPairs.push_back(checkCollision(player, p.getRect()));
+    }
+	
+	// Find greatest correction in each direction
+	for (const FPair& f : correctionPairs) {
+		if (abs(f.x) > abs(correctionPair.x)) {
+			correctionPair.x = f.x;
 		}
-	}
+		
+		if (abs(f.y) > abs(correctionPair.y)) {
+			correctionPair.y = f.y;
 		}
-	else {
-	// Check collisions
-	for (Platform p : scene.getPlatforms()) {
-		if (SDL_IntersectRect(&p.getRect(), &player.getRect(), &intersection) ==
-		    SDL_TRUE) {
-			// TODO: look at horizontal and vertical velocities, determine 
-			//   whether player would hit side or top/bottom first
-			
-			// TODO: fix case where player holds down and moves across two
-			// connected platforms (or just avoid two connected platforms in the
-			// first place)
-			if (intersection.w < intersection.h) {
-				if (oldPosition.x < player.getPos().x) {
-					newPosition.x = p.getRect().x - player.getRect().w;
-				}
-				else {
-					newPosition.x = p.getRect().x + p.getRect().w;
-				}
-				
-				newPosition.y = player.getPos().y;
-			}
-			else if (intersection.w > intersection.h) {
-				if (oldPosition.y < player.getPos().y) {
-					newPosition.y = p.getRect().y - player.getRect().h;
-				}
-				else {
-					newPosition.y = p.getRect().y + p.getRect().h;
-				}
-				
-				newPosition.x = player.getPos().x;
-			}
-			else {
-				if (player.getRect().x == intersection.x) {
-					newPosition.x = player.getPos().x + intersection.w;
-				}
-				else {
-					newPosition.x = player.getPos().x - intersection.w;
-				}
-				
-				if (player.getRect().y == intersection.y) {
-					newPosition.y = player.getPos().y + intersection.h;
-				}
-				else {
-					newPosition.y = player.getPos().y - intersection.h;
-				}
-			}
-			
-			if (!player.setPosition(newPosition, scene.getCollisionBounds())) {
-				cout << "player dead";
-				playerAlive = false;
-			}
-		}
-	}
 	}
 	
-	// Add more platforms as player gets close to the edge
-	// if (scene.getBounds().w - player.getRect().x < camera.getRect().w) {
-	//	scene.addRandomPlatform(3);
-	//}
-	
+	// Add the corrections
+	player.shiftPosition(correctionPair);
+    
 	// Center the camera on the player
 	camera.centerOnCharacter(player, scene.getBounds());
-	return playerAlive;
+    
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Private helper functions (defined in Physics.cpp)
 ////////////////////////////////////////////////////////////////////////////////
  
-bool
+FPair
+Physics::checkCollision(const Character& p, const SDL_Rect& r)
+{
+	FPair delta;
+    FPair v = p.getVel();
+	SDL_Rect intersection;
+	
+	if (SDL_IntersectRect(&p.getRect(), &r, &intersection) == SDL_FALSE) {
+		return { 0, 0 };
+	}
+	
+	// Check intersections along horizontal edges
+	if (intersection.w == p.getRect().w || intersection.w == r.w) {
+		delta.x = 0;
+		delta.y = (p.getRect().y > r.y) ? intersection.h : -1 * intersection.h;
+		return delta;
+	}
+	
+	// Check intersections along vertical edges
+	if (intersection.h == p.getRect().h || intersection.h == r.h) {
+		delta.y = 0;
+		delta.x = (p.getRect().x > r.x) ? intersection.w : -1 * intersection.w;
+		return delta;
+	}
+	
+	// Intersection is at corner
+	if (abs(v.x) == abs(v.y)) {
+		if (intersection.w < intersection.h) {
+			delta.y = 0;
+			delta.x = (p.getRect().x > r.x) ? intersection.w : -1 * intersection.w;
+			return delta;
+		}
+		else {
+			delta.x = 0;
+			delta.y = (p.getRect().y > r.y) ? intersection.h : -1 * intersection.h;
+			return delta;
+		}
+	}
+	else if (abs(v.y) > abs(v.x)) {
+		delta.x = 0;
+		delta.y = (p.getRect().y > r.y) ? intersection.h : -1 * intersection.h;
+		return delta;
+	}
+	else {
+		delta.y = 0;
+		delta.x = (p.getRect().x > r.x) ? intersection.w : -1 * intersection.w;
+		return delta;
+	}
+}
+ 
+FPair
 Physics::parseInput(const Scene& scene,
                     Character& player, 
                     const Input& input,
@@ -212,6 +154,8 @@ Physics::parseInput(const Scene& scene,
 		delta.x *= 0.2;
 	}
 	
+	player.setVelocity(delta);
+	
 	// Move the player
-	return player.shiftPosition(delta, scene.getCollisionBounds());
+	return delta;
 }

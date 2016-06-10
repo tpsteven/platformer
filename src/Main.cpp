@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 	assert(camera.init(renderer.getWidth(), renderer.getHeight()));
 
 	// Initialize the player
-	assert(player.init(0, 0, blockSize));
+	assert(player.init(1, 1, blockSize));
 
 	// Initialize the scene
 	scene.load(Scene::ARENA_DEFAULT, blockSize);

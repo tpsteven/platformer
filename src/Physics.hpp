@@ -1,6 +1,9 @@
 #ifndef PHYSICS_HPP
 #define PHYSICS_HPP
 
+#include <list>
+using namespace std;
+
 #include "Camera.hpp"
 #include "Character.hpp"
 #include "Input.hpp"
@@ -42,10 +45,12 @@ private:
 	////////////////////////////////////////////////////////////////////////////
 	// Private helper functions (defined in Physics.cpp)
 	////////////////////////////////////////////////////////////////////////////
-	bool parseInput(const Scene& scene,
-	                Character& player, 
-	                const Input& input, 
-	                uint32_t lastFrameTime);
+    FPair checkCollision(const Character& p, const SDL_Rect& r);
+    
+	FPair parseInput(const Scene& scene,
+	                 Character& player, 
+	                 const Input& input, 
+	                 uint32_t lastFrameTime);
 	
 	// Cached mathematical constants
 	const float ROOT_2 = 1.0/16;
@@ -70,6 +75,9 @@ private:
 	
 	// Input information (move to Input struct?)
 	int framesSinceReleasedB;
+    
+    // Data structures for calculating collisions
+    list<FPair> correctionPairs;
 };
 
 #endif

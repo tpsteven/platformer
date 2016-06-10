@@ -54,6 +54,21 @@ public:
 	void shiftPosition(const FPair& delta);
 	
 	/**
+	 * Set the Character's velocity
+	 */
+	void setVelocity(float x, float y) {
+		vel.x = x;
+		vel.y = y;
+	}
+	
+	/**
+	 * Set the Character's velocity
+	 */
+	void setVelocity(const FPair& f) {
+		vel = f;
+	}
+	
+	/**
 	 * Shift the Character by the specified amount while remaining within the
 	 * specified bounds
 	 *
@@ -70,6 +85,13 @@ public:
 	 */
 	const FPair& getPos() const {
 		return pos;
+	}
+    
+	/**
+	 * Return an unmodifiable reference to the true velocity
+	 */
+	const FPair& getVel() const {
+		return vel;
 	}
 
 	/** 
