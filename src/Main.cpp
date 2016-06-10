@@ -5,6 +5,18 @@
 #include <string>
 using namespace std;
 
+//////////////// Yuji /////////////////////
+#ifdef RPI
+	#include <iostream>
+	#include <unistd.h>
+	#include <errno.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include "GPIOClass.hpp"
+	#include "GPController.hpp"
+#endif
+/////////////// End Yuji ///////////////////
+
 #include <SDL.h>
 
 #include "Camera.hpp"
@@ -69,6 +81,13 @@ int main(int argc, char* argv[])
 	assert(frameTimer.init(renderConfig.frame_timer_window));
 	frameTimer.start();
 
+//////////////// Yuji /////////////////////
+#ifdef RPI
+	//Initialize GPIO pins
+	controller.GPController;
+#endif
+/////////////// End Yuji ///////////////////
+	
 	// Game loop
 	while (run) {
 		if (reset) {
@@ -86,6 +105,13 @@ int main(int argc, char* argv[])
 		// Get input, change run to false if necessary
 		pollKeyboardInput(input, run);
 
+//////////////// Yuji /////////////////////
+	#ifdef RPI
+			//get inputs, change states
+		pollController(input, run);
+	#endif
+/////////////// End Yuji ///////////////////
+		
 		// Apply input to player, move player and check for collisions, move camera
 		if (!physics.step(scene, player, camera, input, frameTimer.getLastFrameTime())) {
 			reset = true;
@@ -322,4 +348,71 @@ void pollKeyboardInput(Input& input, bool& run)
 		}
     }
 }
+//////////////// Yuji /////////////////////
+#ifdef RPI
+//pull button states and send to input
+void pollController (Input& input, bool& run){
+	while (!controller.inputList.empty()) {
 
+		switch (controller.inputList.front().buttonUpDown) {
+
+			case 1:   // Check key presses
+				switch (controller.inputList.front().button) {
+					case 'Yquit':
+						run = false;
+						break;
+
+					case 'Xpin':
+						input.down = true;	//temp values until input complete!!!!!
+						break;
+
+					case 'Ajump':
+						input.left = true;	//temp values until input complete!!!!!
+						break;
+
+					case 'Bpin':
+						input.right = true;	//temp values until input complete!!!!!
+						break;
+
+					case SDLK_UP: 			//replace with joystick values
+						input.up = true;
+						break;
+
+					default:
+						break;
+				}
+
+				break;
+
+			case 0:     // Check key releases
+				switch (controller.inputList.front().button) {
+					case 'Xpin':
+						input.down = false;	//temp values until input complete!!!!!
+						break;
+
+					case 'Ajump':
+						input.left = false;	//temp values until input complete!!!!!
+						break;
+
+					case 'Bpin':
+						input.right = false;	//temp values until input complete!!!!!
+						break;
+
+					case SDLK_UP: 			//replace with joystick values
+						input.up = false;
+						break;
+
+					default:
+						break;
+				}
+
+				break;
+
+    		default:
+           		break;
+		}
+		controller.inputList.pop_front();
+    }
+}
+#endif
+/////////////// End Yuji ///////////////////
