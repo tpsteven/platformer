@@ -96,15 +96,15 @@ int main(int argc, char* argv[])
 			player.setPosition({ (float) blockSize, (float) blockSize });
 			player.setVelocity({ 0, 0 });
 			player.touchingGround = true;
-			
+			frameTimer.stop();
 			renderer.render(scene, player, camera);
 			SDL_Delay(500);
 			pollKeyboardInput(input, reset);
 			input.reset();
-			reset = false;
-			frameTimer.tick();
+			frameTimer.start();
 			SDL_Delay(17);
 			frameTimer.tick();
+			reset = false;
 		}
 		
 		// Get input, change run to false if necessary
@@ -279,31 +279,38 @@ void pollKeyboardInput(Input& input, bool& run)
 						break;
 						
 					case SDLK_DOWN:
-						input.pushEvent(Button::Down, ButtonState::Pressed);
+						if (e.key.repeat == 0)
+							input.pushEvent(Button::Down, ButtonState::Pressed);
 						break;
 						
 					case SDLK_LEFT:
-						input.pushEvent(Button::Left, ButtonState::Pressed);
+						if (e.key.repeat == 0)
+							input.pushEvent(Button::Left, ButtonState::Pressed);
 						break;
 						
 					case SDLK_LSHIFT:
-						input.pushEvent(Button::B, ButtonState::Pressed);
+						if (e.key.repeat == 0)
+							input.pushEvent(Button::B, ButtonState::Pressed);
 						break;
 						
 					case SDLK_RIGHT:
-						input.pushEvent(Button::Right, ButtonState::Pressed);
+						if (e.key.repeat == 0)
+							input.pushEvent(Button::Right, ButtonState::Pressed);
 						break;
 			
 					case SDLK_SPACE:
-						input.pushEvent(Button::A, ButtonState::Pressed);
+						if (e.key.repeat == 0)
+							input.pushEvent(Button::A, ButtonState::Pressed);
 						break;
 			
 					case SDLK_UP:
-						input.pushEvent(Button::Up, ButtonState::Pressed);
+						if (e.key.repeat == 0)
+							input.pushEvent(Button::Up, ButtonState::Pressed);
 						break;
 					
 					case SDLK_LALT:
-						input.pushEvent(Button::Alt, ButtonState::Pressed);
+						if (e.key.repeat == 0)
+							input.pushEvent(Button::Alt, ButtonState::Pressed);
 						break;
 					
 					default:
