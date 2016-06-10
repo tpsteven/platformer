@@ -1,3 +1,4 @@
+#ifdef RPI
 /***********************************************************************
  * This header file contains the mcp3008Spi class definition.
  * Its main purpose is to communicate with the MCP3008 chip using
@@ -53,4 +54,5 @@ private:
 
 };
 
+#endif
 #endif

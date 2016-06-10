@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "GPIOClass.h"
+#include "GPIOClass.hpp"
 
 using namespace std;
 

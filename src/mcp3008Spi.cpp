@@ -1,4 +1,5 @@
-#include "mcp3008Spi.h"
+#ifdef RPI
+#include "mcp3008Spi.hpp"
 using namespace std;
 /**********************************************************
  * spiOpen() :function is called by the constructor.
@@ -139,3 +140,4 @@ mcp3008Spi::mcp3008Spi(std::string devspi, unsigned char spiMode, unsigned int s
 mcp3008Spi::~mcp3008Spi(){
     this->spiClose();
 }
+#endif

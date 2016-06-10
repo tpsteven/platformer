@@ -14,18 +14,20 @@ using namespace std;
 GPController::GPController() //initialize gpio, populate gpiolist and inputlist 
 {
 
-    initGPIO(pins[]);
+    initGPIO();
 	
 }
 /*
 *	***** ARDUINO LAYOUT *****
 *	5V input: bottom row left stack pin5(from left) //may need 3.3 for ADC pin4
 *	Xstick: A0, need adc for left and right (uses potentiometer)
+*			bottom row right stack pin1(from left)
 *	Ystick: A1, need adc for up and down (uses potentiometer)
-*	SW1-SW4: D2-5, gpiopins(12,16,20,21)
+*			bottom row right stack pin2(from left)
+*	SW1-SW4: D2-5, top row right stack pins3-6(from left)gpiopins(12,16,20,21)
 */
 
-void GPController::initGPIO (GPIOClass pins[max]){ 
+void GPController::initGPIO (){
     string inputstate;
 	//Digital buttons : SW1-SW4 
 //    GPIOClass* gpio12 = new GPIOClass("12"); //create new GPIO object to be attached to  GPIO12
@@ -37,13 +39,13 @@ void GPController::initGPIO (GPIOClass pins[max]){
     pins[2] =  new GPIOClass("20"); //create new GPIO object to be attached to  GPIO20
     pins[3] =  new GPIOClass("21"); //create new GPIO object to be attached to  GPIO21
     //Analog joystick : X , Y
-	
+
 //     gpio12->export_gpio(); //export GPIO12
 //     gpio16->export_gpio(); //export GPIO16
 //	   gpio20->export_gpio(); //export GPIO20
 //     gpio21->export_gpio(); //export GPIO21
-    for(int i=0;i<max;i++){
-    	pins[i].export_gpio();
+    for(int i=0;i<6;i++){
+    	pins[i]->export_gpio();
     }
     cout << " GPIO pins exported" << endl;
 
@@ -51,8 +53,8 @@ void GPController::initGPIO (GPIOClass pins[max]){
     // gpio16->setdir_gpio("in"); // GPIO16 set to input
 	// gpio20->setdir_gpio("in"); //GPIO20 set to input
     // gpio21->setdir_gpio("in"); // GPIO21 set to input
-    for(int i=0;i<max;i++){
-    	pins[i].setdir_gpio("in");
+    for(int i=0;i<6;i++){
+    	pins[i]->setdir_gpio("in");
     }
 
     cout << " Set GPIO pin directions" << endl;	
@@ -60,20 +62,26 @@ void GPController::initGPIO (GPIOClass pins[max]){
 
 void GPController::pollController(){
 	//Button temp = new Button;
-	int bstate;
-	for(int i=0;i<max;i++){
-		bstate = pins[i].get_gpionum();
+	string bstate;
+	for(int i=0;i<6;i++){
+		//Button temp = new Button;
+		//inputList.push_back(temp);
+		bstate = pins[i]->get_gpionum();
 		switch(i){								 //yquit,x,ajump,b
 			case 0 ://temp.Button('Ypin',0);
-					inputList.push_back(Button('Yquit',bstate)); //exit game?
+					inputList.push_back(Button("Yquit",bstate)); //exit game?
+					//inputList.back().Button("Yquit",bstate);
 					//inputList.push_back(temp);
 					break;
-			case 1 :inputList.push_back(Button('Xpin',bstate));
+			case 1 :inputList.push_back(Button("Xpin",bstate));
+					//inputList.back().Button("Xpin",bstate);
 					break;
-			case 2 :inputList.push_back(Button('Ajump',bstate)); //jump
+			case 2 :inputList.push_back(Button("Ajump",bstate)); //jump
+					//inputList.back().Button("Ajump",bstate);
 					break;
-			case 3 :inputList.push_back(Button('Bpin',bstate));
-
+			case 3 :inputList.push_back(Button("Bpin",bstate));
+					//inputList.back().Button("Bpin",bstate);
+					break;
 			//analog stick:
 
 
@@ -81,7 +89,7 @@ void GPController::pollController(){
 	}
 }
 
-void GPController::Button::Button(string buttonName, int buttonState){
+GPController::Button::Button(string buttonName, string buttonState){
 	this->button = buttonName;
 	this->buttonUpDown=buttonState;
 }
@@ -90,14 +98,14 @@ void GPController::Button::set_button(string buttonName){
 	button = buttonName;
 }
 
-void GPController::Button::set_buttonUpDown(int buttonState){
+void GPController::Button::set_buttonUpDown(string buttonState){
 	buttonUpDown = buttonState;
 }
 
-int GPController::Button::get_button(){
+string GPController::Button::get_button(){
 	return button;
 }
 
-int GPController::Button::get_buttonUpDown(){
+string GPController::Button::get_buttonUpDown(){
 	return buttonUpDown;
 }

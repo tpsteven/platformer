@@ -11,21 +11,21 @@ using namespace std;
 class GPController
 {
 public:
-	int max=6;
+	//static int max=6;
     GPController();  // create a GPController object that contains pin list and input list
 	void pollController();
 private:
-	GPIOClass pins[max];
-	void initGPIO (GPIOClass pins[max]);
+	GPIOClass* pins[6];
+	void initGPIO ();
 	class Button{
 	public:
 		string button;
-		int buttonUpDown; // 0=up, 1=down
-		void Button(string buttonName, int buttonState);
+		string buttonUpDown; // 0=up, 1=down
+		Button(string buttonName, string buttonState);
 		void set_button(string buttonName);
-		void set_buttonUpDown(int buttonState);
-		int get_button();
-		int get_buttonUpDown();
+		void set_buttonUpDown(string buttonState);
+		string get_button();
+		string get_buttonUpDown();
 	};
 public:
 	std::list<Button> inputList;
