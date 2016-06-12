@@ -374,68 +374,77 @@ void pollKeyboardInput(Input& input, bool& run)
 #ifdef RPI
 //pull button states and send to input
 void pollController (GPController& controller, Input& input, bool& run){
-	while (!controller.inputList.empty()) {
 
-		switch (controller.inputList.front().buttonUpDown) {
+	for(int i=0;i<4;i++){
+		if(controller.inputList[i]->get_buttonEvent()!=0){
+							//cout << "buttonEvent = 0" << endl;
 
-			case 1:   // Check key presses
-				switch (controller.inputList.front().button) {
-					case 'Y':
-						run = false;
-						break;
+			switch(controller.inputList[i]->get_buttonUpDown()){
+				case 1:   // Check key presses
 
-					case 'X':
-						input.pushEvent(Button::Left, ButtonState::Pressed);
-						break;
+					switch (controller.inputList[i]->get_button()){
+						case 'Y':
+							run = false;
+							//cout << "Y = down" << endl;
+							break;
 
-					case 'A':
-						input.pushEvent(Button::A, ButtonState::Pressed);
-						break;
+						case 'L':
+							input.pushEvent(Button::Left, ButtonState::Pressed);
+							//cout << "X = down" << endl;
+							break;
 
-					case 'B':
-						input.pushEvent(Button::Right, ButtonState::Pressed);
-						break;
+						case 'A':
+							input.pushEvent(Button::A, ButtonState::Pressed);
+							//cout << "A = down" << endl;
+							break;
+
+						case 'R':
+							input.pushEvent(Button::Right, ButtonState::Pressed);
+							//cout << "B = down" << endl;
+							break;
 /*
 					case SDLK_UP: 			//replace with joystick values
 						input.pushEvent(Button::Down, ButtonState::Pressed);
 						input.up = true;
 						break;
 */
-					default:
-						break;
-				}
+						default:
+							break;
+					}
 
-				break;
+					break;
 
-			case 0:     // Check key releases
-				switch (controller.inputList.front().button) {
-					case 'X':
-						input.pushEvent(Button::Left, ButtonState::Released);
-						break;
+				case 0:     // Check key releases
 
-					case 'A':
-						input.pushEvent(Button::A, ButtonState::Released);
-						break;
+					switch (controller.inputList[i]->get_button()){
+						case 'L':
+							input.pushEvent(Button::Left, ButtonState::Released);
+							break;
 
-					case 'B':
-						input.pushEvent(Button::Right, ButtonState::Released);
-						break;
+						case 'A':
+							input.pushEvent(Button::A, ButtonState::Released);
+							break;
+
+						case 'R':
+							input.pushEvent(Button::Right, ButtonState::Released);
+							break;
 /*
 					case SDLK_UP: 			//replace with joystick values
 						input.pushEvent(Button::Down, ButtonState::Released);
 						input.up = false;
 						break;
 */
-					default:
-						break;
-				}
+						default:
+							break;
+					}
 
-				break;
+					break;
 
-    		default:
-           		break;
+				default:
+					break;
+			}
+			//controller.inputList.pop_front();
 		}
-		controller.inputList.pop_front();
     }
 }
 #endif
