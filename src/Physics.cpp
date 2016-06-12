@@ -41,7 +41,7 @@ Physics::step(Scene& scene,
         // Part of player is outside scene bounds, dies violently
         return false;
     }
-    
+
     // Check collisions and add necessary corrections to list
     for (const Platform& p : scene.getPlatforms()) {
 		correctionPair = checkCollision(player, p.getRect());
@@ -81,7 +81,7 @@ Physics::step(Scene& scene,
 	
 	// Add the correction
 	player.shiftPosition(correctionPair);
-	
+
 	// Center the camera on the player
 	camera.centerOnCharacter(player, scene.getBounds());
     

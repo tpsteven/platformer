@@ -37,6 +37,10 @@ void loadRenderArgs(int argc, char* argv[], RenderConfig& renderConfig);
 void loadRenderConfig(RenderConfig& renderConfig);
 void pollKeyboardInput(Input& input, bool& run);
 
+#ifdef RPI
+	void pollController(GPController& controller, Input& input, bool& run);
+#endif
+
 int main(int argc, char* argv[])
 {
 	bool reset = false;
@@ -56,7 +60,12 @@ int main(int argc, char* argv[])
 	// Load RenderConfig from file and apply command-line arguments
 	loadRenderConfig(renderConfig);
 	loadRenderArgs(argc, argv, renderConfig);
-	
+
+#ifdef RPI
+	renderConfig.fullscreen=true;
+	renderConfig.hardware_accelerated=true;
+#endif
+
 	// Initialize the renderer (including SDL and required libraries)
 	assert(renderer.init());
 	
@@ -84,7 +93,7 @@ int main(int argc, char* argv[])
 //////////////// Yuji /////////////////////
 #ifdef RPI
 	//Initialize GPIO pins
-	controller.GPController;
+	GPController controller;
 #endif
 /////////////// End Yuji ///////////////////
 	
@@ -107,16 +116,17 @@ int main(int argc, char* argv[])
 			reset = false;
 		}
 		
-		// Get input, change run to false if necessary
-		pollKeyboardInput(input, run);
-
 //////////////// Yuji /////////////////////
 	#ifdef RPI
 			//get inputs, change states
-		pollController(input, run);
+		controller.pollController();
+		pollController(controller, input, run);
 	#endif
 /////////////// End Yuji ///////////////////
 		
+		// Get input, change run to false if necessary
+		pollKeyboardInput(input, run);
+
 		// Apply input to player, move player and check for collisions, move camera
 		if (!physics.step(scene, player, camera, input, frameTimer.getLastFrameTime())) {
 			reset = true;
@@ -363,33 +373,34 @@ void pollKeyboardInput(Input& input, bool& run)
 //////////////// Yuji /////////////////////
 #ifdef RPI
 //pull button states and send to input
-void pollController (Input& input, bool& run){
+void pollController (GPController& controller, Input& input, bool& run){
 	while (!controller.inputList.empty()) {
 
 		switch (controller.inputList.front().buttonUpDown) {
 
 			case 1:   // Check key presses
 				switch (controller.inputList.front().button) {
-					case 'Yquit':
+					case 'Y':
 						run = false;
 						break;
 
-					case 'Xpin':
-						input.down = true;	//temp values until input complete!!!!!
+					case 'X':
+						input.pushEvent(Button::Left, ButtonState::Pressed);
 						break;
 
-					case 'Ajump':
-						input.left = true;	//temp values until input complete!!!!!
+					case 'A':
+						input.pushEvent(Button::A, ButtonState::Pressed);
 						break;
 
-					case 'Bpin':
-						input.right = true;	//temp values until input complete!!!!!
+					case 'B':
+						input.pushEvent(Button::Right, ButtonState::Pressed);
 						break;
-
+/*
 					case SDLK_UP: 			//replace with joystick values
+						input.pushEvent(Button::Down, ButtonState::Pressed);
 						input.up = true;
 						break;
-
+*/
 					default:
 						break;
 				}
@@ -398,22 +409,23 @@ void pollController (Input& input, bool& run){
 
 			case 0:     // Check key releases
 				switch (controller.inputList.front().button) {
-					case 'Xpin':
-						input.down = false;	//temp values until input complete!!!!!
+					case 'X':
+						input.pushEvent(Button::Left, ButtonState::Released);
 						break;
 
-					case 'Ajump':
-						input.left = false;	//temp values until input complete!!!!!
+					case 'A':
+						input.pushEvent(Button::A, ButtonState::Released);
 						break;
 
-					case 'Bpin':
-						input.right = false;	//temp values until input complete!!!!!
+					case 'B':
+						input.pushEvent(Button::Right, ButtonState::Released);
 						break;
-
+/*
 					case SDLK_UP: 			//replace with joystick values
+						input.pushEvent(Button::Down, ButtonState::Released);
 						input.up = false;
 						break;
-
+*/
 					default:
 						break;
 				}

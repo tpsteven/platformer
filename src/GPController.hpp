@@ -15,17 +15,17 @@ public:
     GPController();  // create a GPController object that contains pin list and input list
 	void pollController();
 private:
-	GPIOClass* pins[6];
+	GPIOClass* pins[4];
 	void initGPIO ();
 	class Button{
 	public:
-		string button;
-		string buttonUpDown; // 0=up, 1=down
-		Button(string buttonName, string buttonState);
-		void set_button(string buttonName);
-		void set_buttonUpDown(string buttonState);
-		string get_button();
-		string get_buttonUpDown();
+		char button;
+		int buttonUpDown; // 0=up, 1=down
+		Button(char buttonName, int buttonState);
+		void set_button(char buttonName);
+		void set_buttonUpDown(int buttonState);
+		char get_button();
+		int get_buttonUpDown();
 	};
 public:
 	std::list<Button> inputList;

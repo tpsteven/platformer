@@ -44,7 +44,7 @@ void GPController::initGPIO (){
 //     gpio16->export_gpio(); //export GPIO16
 //	   gpio20->export_gpio(); //export GPIO20
 //     gpio21->export_gpio(); //export GPIO21
-    for(int i=0;i<6;i++){
+    for(int i=0;i<4;i++){
     	pins[i]->export_gpio();
     }
     cout << " GPIO pins exported" << endl;
@@ -53,7 +53,7 @@ void GPController::initGPIO (){
     // gpio16->setdir_gpio("in"); // GPIO16 set to input
 	// gpio20->setdir_gpio("in"); //GPIO20 set to input
     // gpio21->setdir_gpio("in"); // GPIO21 set to input
-    for(int i=0;i<6;i++){
+    for(int i=0;i<4;i++){
     	pins[i]->setdir_gpio("in");
     }
 
@@ -62,50 +62,68 @@ void GPController::initGPIO (){
 
 void GPController::pollController(){
 	//Button temp = new Button;
-	string bstate;
-	for(int i=0;i<6;i++){
+	string bstate_str;
+	int bstate;
+	
+	for(int i=0;i<4;i++){
 		//Button temp = new Button;
 		//inputList.push_back(temp);
-		bstate = pins[i]->get_gpionum();
+
+		if (pins[i]->getval_gpio(bstate_str) == -1) {
+			cout << "Failed to read pin " << pins[i]->get_gpionum() << endl;
+		}
+
+		if (bstate_str.compare("0") == 0) {
+			bstate = 1;
+		}
+		else if (bstate_str.compare("1") == 0) {
+			bstate = 0;
+		}
+		else {
+			cout << "bstate = 2" << endl;
+			bstate = 2;
+		}
+		
 		switch(i){								 //yquit,x,ajump,b
 			case 0 ://temp.Button('Ypin',0);
-					inputList.push_back(Button("Yquit",bstate)); //exit game?
+					inputList.push_back(Button('Y', bstate)); //exit game?
 					//inputList.back().Button("Yquit",bstate);
 					//inputList.push_back(temp);
 					break;
-			case 1 :inputList.push_back(Button("Xpin",bstate));
+			case 1 :inputList.push_back(Button('X', bstate));
 					//inputList.back().Button("Xpin",bstate);
 					break;
-			case 2 :inputList.push_back(Button("Ajump",bstate)); //jump
+			case 2 :inputList.push_back(Button('A', bstate)); //jump
 					//inputList.back().Button("Ajump",bstate);
 					break;
-			case 3 :inputList.push_back(Button("Bpin",bstate));
+			case 3 :inputList.push_back(Button('B',bstate));
 					//inputList.back().Button("Bpin",bstate);
 					break;
 			//analog stick:
 
-
+			default:
+			        break;
 		}
 	}
 }
 
-GPController::Button::Button(string buttonName, string buttonState){
+GPController::Button::Button(char buttonName, int buttonState){
 	this->button = buttonName;
 	this->buttonUpDown=buttonState;
 }
 
-void GPController::Button::set_button(string buttonName){
+void GPController::Button::set_button(char buttonName){
 	button = buttonName;
 }
 
-void GPController::Button::set_buttonUpDown(string buttonState){
+void GPController::Button::set_buttonUpDown(int buttonState){
 	buttonUpDown = buttonState;
 }
 
-string GPController::Button::get_button(){
+char GPController::Button::get_button(){
 	return button;
 }
 
-string GPController::Button::get_buttonUpDown(){
+int GPController::Button::get_buttonUpDown(){
 	return buttonUpDown;
 }
