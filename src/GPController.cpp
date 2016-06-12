@@ -34,29 +34,17 @@ GPController::GPController() //initialize gpio, populate gpiolist and inputlist
 void GPController::initGPIO (){
     string inputstate;
 	//Digital buttons : SW1-SW4 
-//    GPIOClass* gpio12 = new GPIOClass("12"); //create new GPIO object to be attached to  GPIO12
-//    GPIOClass* gpio16 = new GPIOClass("16"); //create new GPIO object to be attached to  GPIO16
-//    GPIOClass* gpio20 = new GPIOClass("20"); //create new GPIO object to be attached to  GPIO20
-//    GPIOClass* gpio21 = new GPIOClass("21"); //create new GPIO object to be attached to  GPIO21
+
     pins[0] =  new GPIOClass("12"); //create new GPIO object to be attached to  GPIO12
     pins[1] =  new GPIOClass("16"); //create new GPIO object to be attached to  GPIO16
     pins[2] =  new GPIOClass("20"); //create new GPIO object to be attached to  GPIO20
     pins[3] =  new GPIOClass("21"); //create new GPIO object to be attached to  GPIO21
-    //Analog joystick : X , Y
 
-//     gpio12->export_gpio(); //export GPIO12
-//     gpio16->export_gpio(); //export GPIO16
-//	   gpio20->export_gpio(); //export GPIO20
-//     gpio21->export_gpio(); //export GPIO21
     for(int i=0;i<4;i++){
     	pins[i]->export_gpio();
     }
     cout << " GPIO pins exported" << endl;
 
-    // gpio12->setdir_gpio("in"); //GPIO12 set to input
-    // gpio16->setdir_gpio("in"); // GPIO16 set to input
-	// gpio20->setdir_gpio("in"); //GPIO20 set to input
-    // gpio21->setdir_gpio("in"); // GPIO21 set to input
     for(int i=0;i<4;i++){
     	pins[i]->setdir_gpio("in");
     }
@@ -71,9 +59,9 @@ void GPController::initGPIO (){
 }
 
 void GPController::pollController(){
-	//Button temp = new Button;
-	string bstate_str;
-	int bstate;
+
+    string bstate_str;
+    int bstate;
     int a2dVal = 0;
     int a2dChannel = 0;
     for(int i=0;i<6;i++){ 
@@ -88,20 +76,19 @@ void GPController::pollController(){
         	a2dVal = 0;
                 a2dVal = (data[1]<< 8) & 0b1100000000; //merge data[1] & data[2] to get result
                 a2dVal |=  (data[2] & 0xff);
+
 		if(i==4){ //Left
-			if(a2dVal>682){
+			if(a2dVal>682)
 				bstate=1;
-			cout << "Left = 1" << endl;}
 			else
 				bstate=0;
 		}
 		else{
-			if(a2dVal<340){
-				bstate=1;
-			cout << "right = 1" << endl;}
+			if(a2dVal<340)
+				bstate=1; 
 			else
-				bstate=0;
-		}
+				bstate=0; 
+ 		}
 	}
 	else {
 		if (pins[i]->getval_gpio(bstate_str) == -1) {
@@ -127,34 +114,7 @@ void GPController::pollController(){
 	else{
 		inputList[i]->set_buttonEvent(1);
 	}
-    }
-		//analog stick:
- /*       data[0] = 1;  //  first byte transmitted -> start bit
-        data[1] = 0b10000000 |( ((a2dChannel & 7) << 4)); // second byte transmitted -> (SGL/DIF = 1, D2=D1=D0=0)
-        data[2] = 0; // third byte transmitted....don't care
-
-        a2d.spiWriteRead(data, sizeof(data) );
-
-        a2dVal = 0;
-                a2dVal = (data[1]<< 8) & 0b1100000000; //merge data[1] & data[2] to get result
-                a2dVal |=  (data[2] & 0xff);
-
-
-        //sleep(1);			//####### For testing limit #######
-        //cout << "The Result is: " << a2dVal << endl;
-
-        //assume 1024, thresholds = 340x
-        if(a2dVal<340)
-        	//inputList.push_back(Button("StickR",1));
-		inputList[5]->set_buttonEvent(1);
-        else if(a2dVal>682)
-        	inputList.push_back(Button("StickL",1));
-        else{
-        	inputList.push_back(Button("StickR",0));
-        	inputList.push_back(Button("StickL",0));
-        } */
-
-	
+    }	
 }
 
 GPController::Button::Button(char buttonName, int buttonState, int buttonE){

@@ -375,7 +375,7 @@ void pollKeyboardInput(Input& input, bool& run)
 //pull button states and send to input
 void pollController (GPController& controller, Input& input, bool& run){
 
-	for(int i=0;i<4;i++){
+	for(int i=0;i<6;i++){
 		if(controller.inputList[i]->get_buttonEvent()!=0){
 							//cout << "buttonEvent = 0" << endl;
 
@@ -390,7 +390,7 @@ void pollController (GPController& controller, Input& input, bool& run){
 
 						case 'L':
 							input.pushEvent(Button::Left, ButtonState::Pressed);
-							//cout << "X = down" << endl;
+							//cout << "L = down" << endl;
 							break;
 
 						case 'A':
@@ -400,14 +400,17 @@ void pollController (GPController& controller, Input& input, bool& run){
 
 						case 'R':
 							input.pushEvent(Button::Right, ButtonState::Pressed);
+							//cout << "R = down" << endl;
+							break;
+						case 'B':
+							input.pushEvent(Button::B, ButtonState::Pressed);
 							//cout << "B = down" << endl;
 							break;
-/*
-					case SDLK_UP: 			//replace with joystick values
-						input.pushEvent(Button::Down, ButtonState::Pressed);
-						input.up = true;
-						break;
-*/
+						case 'X':
+							input.pushEvent(Button::X, ButtonState::Pressed);
+							//cout << "R = down" << endl;
+							break;
+
 						default:
 							break;
 					}
@@ -428,12 +431,12 @@ void pollController (GPController& controller, Input& input, bool& run){
 						case 'R':
 							input.pushEvent(Button::Right, ButtonState::Released);
 							break;
-/*
-					case SDLK_UP: 			//replace with joystick values
-						input.pushEvent(Button::Down, ButtonState::Released);
-						input.up = false;
-						break;
-*/
+						case 'B':
+							input.pushEvent(Button::B, ButtonState::Released);
+							break;
+						case 'X':
+							input.pushEvent(Button::X, ButtonState::Released);
+							break;
 						default:
 							break;
 					}
@@ -443,7 +446,6 @@ void pollController (GPController& controller, Input& input, bool& run){
 				default:
 					break;
 			}
-			//controller.inputList.pop_front();
 		}
     }
 }
