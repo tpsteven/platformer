@@ -1,3 +1,5 @@
+#ifdef RPI
+
 #include <iostream>
 #include <unistd.h>
 #include <errno.h>
@@ -12,6 +14,7 @@
 using namespace std;
 
 GPController::GPController() //initialize gpio, populate gpiolist and inputlist 
+	: a2d("/dev/spidev0.0", SPI_MODE_0, 1000000, 8)
 {
 
     initGPIO();
@@ -127,3 +130,5 @@ char GPController::Button::get_button(){
 int GPController::Button::get_buttonUpDown(){
 	return buttonUpDown;
 }
+
+#endif
