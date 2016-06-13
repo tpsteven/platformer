@@ -396,7 +396,6 @@ void pollController (GPController& controller, Input& input, bool& run){
 
 	for(int i=0;i<6;i++){
 		if(controller.inputList[i]->get_buttonEvent()!=0){
-							//cout << "buttonEvent = 0" << endl;
 
 			switch(controller.inputList[i]->get_buttonUpDown()){
 				case 1:   // Check key presses
@@ -421,12 +420,12 @@ void pollController (GPController& controller, Input& input, bool& run){
 							input.pushEvent(Button::Right, ButtonState::Pressed);
 							//cout << "R = down" << endl;
 							break;
-						case 'B':
-							input.pushEvent(Button::B, ButtonState::Pressed);
+						case 'B':   // corresponds to keyboard up
+							input.pushEvent(Button::Up, ButtonState::Pressed);
 							//cout << "B = down" << endl;
 							break;
-						case 'X':
-							input.pushEvent(Button::X, ButtonState::Pressed);
+						case 'X':   // corresponds to keyboard down
+							input.pushEvent(Button::Down, ButtonState::Pressed);
 							//cout << "R = down" << endl;
 							break;
 
@@ -450,11 +449,11 @@ void pollController (GPController& controller, Input& input, bool& run){
 						case 'R':
 							input.pushEvent(Button::Right, ButtonState::Released);
 							break;
-						case 'B':
-							input.pushEvent(Button::B, ButtonState::Released);
+						case 'B':   // corresponds to keyboard up
+							input.pushEvent(Button::Up, ButtonState::Released);
 							break;
-						case 'X':
-							input.pushEvent(Button::X, ButtonState::Released);
+						case 'X':   // corresponds to keyboard down
+							input.pushEvent(Button::Down, ButtonState::Released);
 							break;
 						default:
 							break;
