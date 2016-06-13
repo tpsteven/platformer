@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 class mcp3008Spi{
 
