@@ -152,8 +152,12 @@ int main(int argc, char* argv[])
 	Log::instance()->debug("Main::main()", "Program exited.");
 	Log::finalize("platformStats.txt");
 
+	cout << "\nAttempting to upload statistics." << endl;
+
 	// Send the email with stats
 	system("python statMailer.py");
+
+	cout << "Statistics upload attempt complete." << endl;
 
     return 0;
 }
