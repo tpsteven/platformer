@@ -163,7 +163,7 @@ Render::render(const Scene& scene, const Character& player, const Camera& camera
 	SDL_Rect worldRect;     // cached object rect (to avoid calling getRect())
 	
 	// Clear screen
-	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(renderer);
 	
 	// Check where scene intersects the camera/window

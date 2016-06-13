@@ -119,7 +119,7 @@ Log::error(const char* function, stringstream& message)
 	message.clear();
 	
 	tempStream.str("");
-	tempStream.clear();
+	tempStream.clear(); 
 }
 
 void
