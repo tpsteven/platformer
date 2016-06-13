@@ -2,6 +2,7 @@
 #define GPIO_CLASS_H
 
 #include <string>
+#include <sstream>
 using namespace std;
 /* GPIO Class
  * Purpose: Each object instantiated from this class will control a GPIO pin
@@ -20,6 +21,7 @@ public:
     string get_gpionum(); // return the GPIO number associated with the instance of an object
 private:
     string gpionum; // GPIO number associated with the instance of an object
+	stringstream msg;
 };
 
 #endif

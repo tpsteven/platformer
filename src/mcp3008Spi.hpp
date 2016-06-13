@@ -52,6 +52,7 @@ private:
     int spiOpen(std::string devspi);
     int spiClose();
 
+	stringstream msg;
 };
 
 #endif

@@ -10,6 +10,7 @@
 
 #include "GPIOClass.hpp"
 #include "GPController.hpp"
+#include "Log.hpp"
 
 using namespace std;
 
@@ -43,7 +44,9 @@ void GPController::initGPIO (){
     for(int i=0;i<4;i++){
     	pins[i]->export_gpio();
     }
-    cout << " GPIO pins exported" << endl;
+	
+    msg << " GPIO pins exported";
+	Log::instance()->debug("GPController::initGPIO", msg);
 
     for(int i=0;i<4;i++){
     	pins[i]->setdir_gpio("in");
@@ -55,7 +58,9 @@ void GPController::initGPIO (){
     //add in joystick L/R
     inputList[4] = new Button('L',0,0);
     inputList[5] = new Button('R',0,0);
-    cout << " Set GPIO pin directions" << endl;	
+	
+    msg << " Set GPIO pin directions";
+	Log::instance()->debug("GPController::initGPIO", msg);
 }
 
 void GPController::pollController(){
@@ -92,7 +97,8 @@ void GPController::pollController(){
 	}
 	else {
 		if (pins[i]->getval_gpio(bstate_str) == -1) {
-			cout << "Failed to read pin " << pins[i]->get_gpionum() << endl;
+			msg << "Failed to read pin " << pins[i]->get_gpionum();
+			Log::instance()->error("GPController::pollController", msg);
 		}
 	
 		if (bstate_str.compare("0") == 0) {
@@ -102,7 +108,8 @@ void GPController::pollController(){
 			bstate = 0;
 		}
 		else {
-			cout << "bstate = 2" << endl;
+			msg << "bstate = 2" << endl;
+			Log::instance()->warning("GPController::pollController", msg);
 			bstate = 2;
 		}
 	}

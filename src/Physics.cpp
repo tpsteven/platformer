@@ -8,6 +8,7 @@ using namespace std;
 #include "Camera.hpp"
 #include "Character.hpp"
 #include "Input.hpp"
+#include "Log.hpp"
 #include "Scene.hpp"
 #include "Types.hpp"
 
@@ -171,8 +172,8 @@ Physics::parseInput(const Scene& scene,
                     Input& input,
                     uint32_t lastFrameTime)
 {
-	float g = -3000.0f;
-	float j = 1000.0f;
+	float g = -3000.0f * speed * speed;
+	float j = 1000.0f * speed;
 	ButtonEvent e;
 	FPair velocity = { player.getVel().x, player.getVel().y };
 	
@@ -186,6 +187,34 @@ Physics::parseInput(const Scene& scene,
 				
 				break;
 				
+			case Button::Up:
+				if (e.state == ButtonState::Pressed) {
+					speed += 0.1;
+					
+					if (speed > 2.0f) {
+						speed = 2.0f;
+					}
+					
+					msg << "Speed increased to " << speed;
+					Log::instance()->debug("Physics::parseInput()", msg);
+				}
+				
+				break;
+			
+			case Button::Down:
+				if (e.state == ButtonState::Pressed) {
+					speed -= 0.1;
+					
+					if (speed < 0.5f) {
+						speed = 0.5f;
+					}
+					
+					msg << "Speed decreased to " << speed;
+					Log::instance()->debug("Physics::parseInput()", msg);
+				}
+				
+				break;
+			
 			default:
 				break;
 		}
@@ -205,7 +234,7 @@ Physics::parseInput(const Scene& scene,
 		}
 //	}
 	
-	player.setVelocity(velocity.x, velocity.y + g * lastFrameTime / 1000.0f);
+	player.setVelocity(velocity.x * speed, velocity.y + g * lastFrameTime / 1000.0f);
 	
 	// Move the player
 	return { player.getVel().x * lastFrameTime / 1000.0f,

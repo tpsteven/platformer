@@ -1,5 +1,7 @@
 #ifdef RPI
 #include "mcp3008Spi.hpp"
+#include "Log.hpp"
+
 using namespace std;
 /**********************************************************
  * spiOpen() :function is called by the constructor.
@@ -13,43 +15,50 @@ int mcp3008Spi::spiOpen(std::string devspi){
     int statusVal = -1;
     this->spifd = open(devspi.c_str(), O_RDWR);
     if(this->spifd < 0){
-        perror("could not open SPI device");
+        msg << "could not open SPI device";
+		Log::instance()->error("mcp3008Spi::spiOpen()", msg);
         exit(1);
     }
 
     statusVal = ioctl (this->spifd, SPI_IOC_WR_MODE, &(this->mode));
     if(statusVal < 0){
-        perror("Could not set SPIMode (WR)...ioctl fail");
+        msg << "Could not set SPIMode (WR)...ioctl fail";
+		Log::instance()->error("mcp3008Spi::spiOpen()", msg);
         exit(1);
     }
 
     statusVal = ioctl (this->spifd, SPI_IOC_RD_MODE, &(this->mode));
     if(statusVal < 0) {
-      perror("Could not set SPIMode (RD)...ioctl fail");
+      msg << "Could not set SPIMode (RD)...ioctl fail";
+	  Log::instance()->error("mcp3008Spi::spiOpen()", msg);
       exit(1);
     }
 
     statusVal = ioctl (this->spifd, SPI_IOC_WR_BITS_PER_WORD, &(this->bitsPerWord));
     if(statusVal < 0) {
-      perror("Could not set SPI bitsPerWord (WR)...ioctl fail");
+      msg << "Could not set SPI bitsPerWord (WR)...ioctl fail";
+	  Log::instance()->error("mcp3008Spi::spiOpen()", msg);
       exit(1);
     }
 
     statusVal = ioctl (this->spifd, SPI_IOC_RD_BITS_PER_WORD, &(this->bitsPerWord));
     if(statusVal < 0) {
-      perror("Could not set SPI bitsPerWord(RD)...ioctl fail");
+      msg << "Could not set SPI bitsPerWord(RD)...ioctl fail";
+	  Log::instance()->error("mcp3008Spi::spiOpen()", msg);
       exit(1);
     }
 
     statusVal = ioctl (this->spifd, SPI_IOC_WR_MAX_SPEED_HZ, &(this->speed));
     if(statusVal < 0) {
-      perror("Could not set SPI speed (WR)...ioctl fail");
+      msg << "Could not set SPI speed (WR)...ioctl fail";
+	  Log::instance()->error("mcp3008Spi::spiOpen()", msg);
       exit(1);
     }
 
     statusVal = ioctl (this->spifd, SPI_IOC_RD_MAX_SPEED_HZ, &(this->speed));
     if(statusVal < 0) {
-      perror("Could not set SPI speed (RD)...ioctl fail");
+      msg << "Could not set SPI speed (RD)...ioctl fail";
+	  Log::instance()->error("mcp3008Spi::spiOpen()", msg);
       exit(1);
     }
     return statusVal;
@@ -64,7 +73,8 @@ int mcp3008Spi::spiClose(){
     int statusVal = -1;
     statusVal = close(this->spifd);
         if(statusVal < 0) {
-      perror("Could not close SPI device");
+      msg << "Could not close SPI device";
+	  Log::instance()->warning("mcp3008Spi::spiClose()", msg);
       exit(1);
     }
     return statusVal;
@@ -97,7 +107,8 @@ int mcp3008Spi::spiWriteRead( unsigned char *data, int length){
  retVal = ioctl (this->spifd, SPI_IOC_MESSAGE(length), &spi) ;
 
  if(retVal < 0){
-    perror("Problem transmitting spi data..ioctl");
+    msg << "Problem transmitting spi data..ioctl";
+	Log::instance()->error("mcp3008Spi::spiWriteRead()", msg);
     exit(1);
  }
 

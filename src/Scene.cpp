@@ -10,6 +10,7 @@
 #include <string>
 using namespace std;
 
+#include "Log.hpp"
 #include "Types.hpp"
 
 Scene::Scene()
@@ -83,7 +84,8 @@ Scene::load(SceneType type, uint32_t blockSize)
 	
 	switch (type) {
 		case ARENA_DEFAULT:
-			cout << "Loading ARENA_DEFAULT: ";
+			msg << "Loading ARENA_DEFAULT";
+			Log::instance()->debug("Scene::load()", msg);
 			expandHorizontally = false;
 		
 			// Set scene boundaries
@@ -110,7 +112,8 @@ Scene::load(SceneType type, uint32_t blockSize)
 			addPlatform({35, 9, 3, 1});
 			addPlatform({30, 12, 3, 1});
 			
-			cout << "COMPLETE" << endl;
+			msg << "Loading ARENA_DEFAULT: COMPLETE";
+			Log::instance()->debug("Scene::load()", msg);
 			break;
 			
 		case ENDLESS:

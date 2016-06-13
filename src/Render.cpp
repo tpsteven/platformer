@@ -45,7 +45,7 @@ bool
 Render::createWindow(const char* title, const RenderConfig& renderConfig)
 {
 	if (window != nullptr) {
-		Log::error("Render::createWindow()", "Window already exists");
+		Log::instance()->error("Render::createWindow()", "Window already exists");
 	}
 
 	// Set title
@@ -60,7 +60,7 @@ Render::createWindow(const char* title, const RenderConfig& renderConfig)
 		
 		SDL_DisplayMode displayMode;
 		if (SDL_GetDesktopDisplayMode(0, &displayMode) != 0) {
-			Log::error("Render::createWindow()", SDL_GetError());
+			Log::instance()->error("Render::createWindow()", SDL_GetError());
 			return 1;
 		}
 
@@ -82,7 +82,7 @@ Render::createWindow(const char* title, const RenderConfig& renderConfig)
 
 	// If unsuccessful: print error code and return
 	if (window == NULL) {
-		Log::error("Render::createWindow()", SDL_GetError());
+		Log::instance()->error("Render::createWindow()", SDL_GetError());
 		return false;
 	}
 
@@ -97,12 +97,12 @@ Render::createWindow(const char* title, const RenderConfig& renderConfig)
 	
 	// If unsuccessful: default to software renderer without vsync
 	if (renderer == NULL) {
-		Log::warning("Render::createWindow()",
+		Log::instance()->warning("Render::createWindow()",
 		             "Falling back to software renderer without vsync");
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 
 		if (renderer == NULL) {
-			Log::error("Render::createWindow()", SDL_GetError());
+			Log::instance()->error("Render::createWindow()", SDL_GetError());
 			return false;
 		}
 	}
@@ -140,7 +140,7 @@ Render::init()
 	// Attempt to initialize SDL
 	// If unsuccessful, print error code and return
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		Log::error("Render::init()", SDL_GetError());
+		Log::instance()->error("Render::init()", SDL_GetError());
 		return false;
 	}
 	
@@ -148,7 +148,7 @@ Render::init()
     // If unsuccessful, print error code and return
 	int imgFlags = IMG_INIT_PNG;
 	if (!(IMG_Init(imgFlags) & imgFlags)) {
-		Log::error("Render::init()", IMG_GetError());
+		Log::instance()->error("Render::init()", IMG_GetError());
 		return false;
 	}
 	
@@ -227,14 +227,14 @@ Render::loadTexture(const char* path, SDL_Renderer* renderer)
 	SDL_Surface* loadedSurface = IMG_Load(path);
 	if (loadedSurface == NULL) {
 		error << "(" << path << ") " << IMG_GetError();
-		Log::error("Render::loadTexture()", error); 
+		Log::instance()->error("Render::loadTexture()", error); 
 	}
 	else {
 		//Create texture from surface pixels
 		newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
 		if (newTexture == NULL) {
 			error << "(" << path << ") " << SDL_GetError();
-			Log::error("Render::loadTexture()", error);
+			Log::instance()->error("Render::loadTexture()", error);
 		}
 		
 		//Get rid of old loaded surface

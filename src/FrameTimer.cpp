@@ -6,6 +6,7 @@ using namespace std;
 
 #include <SDL.h>
 
+#include "Log.hpp"
 #include "Types.hpp"
 
 FrameTimer::FrameTimer()
@@ -81,7 +82,8 @@ FrameTimer::tick()
 		// This avoids issues at high frame rates when the game runs so fast that
 		//   frame times appear to be 0.
 		windowSize <<= 1;
-		cout << "Doubled window size to " << windowSize 
-			 << " to capture high frame rates " << endl;
+		msg << "Doubled window size to " << windowSize 
+			 << " to capture high frame rates";
+		Log::instance()->debug("FrameTimer::tick()", msg);
 	}
 }

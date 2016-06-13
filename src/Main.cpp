@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 using namespace std;
 
@@ -56,6 +57,9 @@ int main(int argc, char* argv[])
 	RenderConfig renderConfig;
 	Physics physics;
 	Scene scene;
+	stringstream msg;
+	
+	Log::instance()->debug("Main::main()", "Program started.");
 	
 	// Load RenderConfig from file and apply command-line arguments
 	loadRenderConfig(renderConfig);
@@ -71,7 +75,8 @@ int main(int argc, char* argv[])
 	
 	// Create a window and set renderer width/height (later passed to Camera)
 	assert(renderer.createWindow("platformer", renderConfig));
-	cout << "Window: (" << renderer.getWidth() << "," << renderer.getHeight() << ")" << endl;
+	msg << "Window: (" << renderer.getWidth() << "," << renderer.getHeight() << ")";
+	Log::instance()->debug("Main::main()", msg);
 	
 	// Calculate the block size, assuming the scene is 20 blocks high
 	assert(calculateBlockSize(blockSize, 20, renderer.getHeight()));
@@ -84,7 +89,8 @@ int main(int argc, char* argv[])
 
 	// Initialize the scene
 	scene.load(Scene::ARENA_DEFAULT, blockSize);
-	cout << "Scene size: (" << scene.getBounds().w << ", " << scene.getBounds().h << ")" << endl;
+	msg << "Scene size: (" << scene.getBounds().w << ", " << scene.getBounds().h << ")";
+	Log::instance()->debug("Main::main()", msg);
 	
 	// Initialize and start frameTimer (so Physics can get frame times)
 	assert(frameTimer.init(renderConfig.frame_timer_window));
@@ -142,6 +148,9 @@ int main(int argc, char* argv[])
 			lastLoggedTime = frameTimer.getTime();
 		}
 	}
+	
+	Log::instance()->debug("Main::main()", "Program exited.");
+	Log::finalize("platformStats.txt");
 
     return 0;
 }
@@ -153,6 +162,8 @@ bool calculateBlockSize(uint32_t& blockSize,
                         uint32_t numBlocks, 
                         uint32_t windowHeight)
 {
+	stringstream msg;
+	
 	if (numBlocks <= 0 || windowHeight <= 0) {
 		return false;
 	}
@@ -167,7 +178,8 @@ bool calculateBlockSize(uint32_t& blockSize,
 		}
 	}
 	
-	cout << "Block Size: " << blockSize << endl;
+	msg << "Block Size: " << blockSize;
+	Log::instance()->debug("Main::calculateBlockSize()", msg);
 	
 	return true;
 }
@@ -189,7 +201,7 @@ void loadRenderArgs(int argc, char* argv[], RenderConfig& renderConfig)
 			}
 			else {
 				error << "Unknown arg (flag): " << arg;
-				Log::warning("Main::loadArgs()", error);
+				Log::instance()->warning("Main::loadArgs()", error);
 			}
 		}
 		else {
@@ -209,7 +221,7 @@ void loadRenderArgs(int argc, char* argv[], RenderConfig& renderConfig)
 			}
 			else {
 				error << "Unknown arg (key-value pair): " << arg;
-				Log::warning("Main::loadArgs()", error);
+				Log::instance()->warning("Main::loadArgs()", error);
 			}
 		}
 	}
@@ -228,7 +240,7 @@ void loadRenderConfig(RenderConfig& renderConfig)
 		if (line.find('=') == string::npos) {
 			// argument is a flag
 			error << "Unknown arg (flag): " << line;
-			Log::warning("Main::loadRenderConfig()", error);
+			Log::instance()->warning("Main::loadRenderConfig()", error);
 		}
 		else {
 			// argument is a key-value pair (separated by '=')
@@ -262,7 +274,7 @@ void loadRenderConfig(RenderConfig& renderConfig)
 			}
 			else {
 				error << "Unknown arg (key-value pair): " << line;
-				Log::warning("Main::loadRenderConfig()", error);
+				Log::instance()->warning("Main::loadRenderConfig()", error);
 			}
 		}
 	}

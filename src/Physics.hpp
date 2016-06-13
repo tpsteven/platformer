@@ -2,6 +2,7 @@
 #define PHYSICS_HPP
 
 #include <list>
+#include <sstream>
 using namespace std;
 
 #include "Camera.hpp"
@@ -41,6 +42,10 @@ public:
 	          Input& input, 
 	          uint32_t lastFrameTime);
 
+	void resetSpeed() {
+		speed = 1.0f;
+	}
+	
 private:
 	////////////////////////////////////////////////////////////////////////////
 	// Private helper functions (defined in Physics.cpp)
@@ -78,6 +83,10 @@ private:
     
     // Data structures for calculating collisions
     list<FPair> correctionPairs;
+	
+	float speed = 1.0;
+	stringstream msg;
+	
 };
 
 #endif

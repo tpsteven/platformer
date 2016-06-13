@@ -2,6 +2,7 @@
 #define SCENE_HPP
 
 #include <list>
+#include <sstream>
 #include <string>
 using namespace std;
 
@@ -91,7 +92,7 @@ private:
 	SDL_Rect collisionBounds;	// if player exits these boundaries, s/he dies
 	uint32_t blockSize;
 	
-	// doubly-linked list of Chunk nodes (deallocate when death laser passes)
+	stringstream msg;
 };
 
 #endif

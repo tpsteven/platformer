@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <queue>
+#include <sstream>
 using namespace std;
 
 #include <SDL.h>
@@ -90,6 +91,8 @@ private:
 	uint32_t        lastFrame       = 0;    // last measured frame time
 	uint32_t        windowSize;             // number of frame times to use when
 											//   calculating fps
+									
+	stringstream    msg;
 };
 
 #endif

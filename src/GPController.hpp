@@ -5,6 +5,7 @@
 
 #include <string>
 #include <list>
+#include <sstream>
 using namespace std;
 
 #include <linux/spi/spidev.h>
@@ -42,6 +43,7 @@ private:
 
 public:
 	Button* inputList[6];
+	stringstream msg;
 };
 
 #endif
