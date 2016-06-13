@@ -33,8 +33,6 @@ Scene::addPlatform(const SDL_Rect& rect)
 bool
 Scene::addPlatform(const SDL_Rect& rect, bool allowVerticalExpansion)
 {
-	// TODO: insert in sorted order (ordered by x)
-
 	assert(rect.x >= 0);
 	assert(rect.y >= 0);
 
@@ -118,6 +116,8 @@ Scene::load(SceneType type, uint32_t blockSize)
 			
 		case ENDLESS:
 			expandHorizontally = true;
+			
+			// TODO: endless runner
 			
 			break;
 			

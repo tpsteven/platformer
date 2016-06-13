@@ -220,7 +220,6 @@ Physics::parseInput(const Scene& scene,
 		}
 	}
 	
-//	if (player.touchingGround) {
 		velocity.x = 320;
 		
 		if (input.getLeft() && !input.getRight()) {
@@ -232,7 +231,6 @@ Physics::parseInput(const Scene& scene,
 			// Both or neither pressed, so don't move horizontally
 			velocity.x = 0;
 		}
-//	}
 	
 	player.setVelocity(velocity.x * speed, velocity.y + g * lastFrameTime / 1000.0f);
 	

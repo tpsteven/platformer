@@ -6,17 +6,12 @@
 #include <string>
 using namespace std;
 
-//////////////// Yuji /////////////////////
 #ifdef RPI
-	#include <iostream>
 	#include <unistd.h>
 	#include <errno.h>
-	#include <stdio.h>
-	#include <stdlib.h>
 	#include "GPIOClass.hpp"
 	#include "GPController.hpp"
 #endif
-/////////////// End Yuji ///////////////////
 
 #include <SDL.h>
 
@@ -96,12 +91,10 @@ int main(int argc, char* argv[])
 	assert(frameTimer.init(renderConfig.frame_timer_window));
 	frameTimer.start();
 
-//////////////// Yuji /////////////////////
 #ifdef RPI
 	//Initialize GPIO pins
 	GPController controller;
 #endif
-/////////////// End Yuji ///////////////////
 	
 	// Game loop
 	while (run) {
@@ -111,6 +104,7 @@ int main(int argc, char* argv[])
 			player.setPosition({ (float) blockSize, (float) blockSize });
 			player.setVelocity({ 0, 0 });
 			player.touchingGround = true;
+			physics.resetSpeed();
 			frameTimer.stop();
 			renderer.render(scene, player, camera);
 			SDL_Delay(500);
@@ -122,13 +116,11 @@ int main(int argc, char* argv[])
 			reset = false;
 		}
 		
-//////////////// Yuji /////////////////////
-	#ifdef RPI
+#ifdef RPI
 			//get inputs, change states
 		controller.pollController();
 		pollController(controller, input, run);
-	#endif
-/////////////// End Yuji ///////////////////
+#endif
 		
 		// Get input, change run to false if necessary
 		pollKeyboardInput(input, run);
@@ -389,44 +381,36 @@ void pollKeyboardInput(Input& input, bool& run)
 		}
     }
 }
-//////////////// Yuji /////////////////////
+
 #ifdef RPI
 //pull button states and send to input
-void pollController (GPController& controller, Input& input, bool& run){
-
-	for(int i=0;i<6;i++){
-		if(controller.inputList[i]->get_buttonEvent()!=0){
-
+void pollController (GPController& controller, Input& input, bool& run)
+{
+	for (int i=0;i<6;i++) {
+		if(controller.inputList[i]->get_buttonEvent()!=0) {
 			switch(controller.inputList[i]->get_buttonUpDown()){
 				case 1:   // Check key presses
-
 					switch (controller.inputList[i]->get_button()){
 						case 'Y':
 							run = false;
-							//cout << "Y = down" << endl;
 							break;
 
 						case 'L':
 							input.pushEvent(Button::Left, ButtonState::Pressed);
-							//cout << "L = down" << endl;
 							break;
 
 						case 'A':
 							input.pushEvent(Button::A, ButtonState::Pressed);
-							//cout << "A = down" << endl;
 							break;
 
 						case 'R':
 							input.pushEvent(Button::Right, ButtonState::Pressed);
-							//cout << "R = down" << endl;
 							break;
 						case 'B':   // corresponds to keyboard up
 							input.pushEvent(Button::Up, ButtonState::Pressed);
-							//cout << "B = down" << endl;
 							break;
 						case 'X':   // corresponds to keyboard down
 							input.pushEvent(Button::Down, ButtonState::Pressed);
-							//cout << "R = down" << endl;
 							break;
 
 						default:
@@ -436,7 +420,6 @@ void pollController (GPController& controller, Input& input, bool& run){
 					break;
 
 				case 0:     // Check key releases
-
 					switch (controller.inputList[i]->get_button()){
 						case 'L':
 							input.pushEvent(Button::Left, ButtonState::Released);
@@ -468,4 +451,3 @@ void pollController (GPController& controller, Input& input, bool& run){
     }
 }
 #endif
-/////////////// End Yuji ///////////////////
