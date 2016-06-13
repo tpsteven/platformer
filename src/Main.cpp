@@ -152,6 +152,9 @@ int main(int argc, char* argv[])
 	Log::instance()->debug("Main::main()", "Program exited.");
 	Log::finalize("platformStats.txt");
 
+	// Send the email with stats
+	system("python statMailer.py");
+
     return 0;
 }
 
